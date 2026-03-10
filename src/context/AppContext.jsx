@@ -1,6 +1,7 @@
 import { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
-import { createElement } from '../data/elementDefinitions';
+import { createElement, getElementDefinition } from '../data/elementDefinitions';
 import { generateJSON, parseJSON } from '../utils/jsonGenerator';
+import { loadFromMTMR as loadFromMTMRFile, saveToMTMR as saveToMTMRFile, isServerRunning } from '../utils/mtmrFileSystem';
 
 // Initial state
 const initialState = {
@@ -38,6 +39,8 @@ const ActionTypes = {
   SAVE_MY_PRESET: 'SAVE_MY_PRESET',
   DELETE_MY_PRESET: 'DELETE_MY_PRESET',
   LOAD_MY_PRESETS: 'LOAD_MY_PRESETS',
+  LOAD_FROM_MTM: 'LOAD_FROM_MTM',
+  SAVE_TO_MTM: 'SAVE_TO_MTM',
 };
 
 // Reducer
@@ -295,6 +298,18 @@ function appReducer(state, action) {
         myPresets: action.payload,
       };
 
+    case ActionTypes.LOAD_FROM_MTM:
+      return {
+        ...state,
+        items: action.payload,
+        selectedItemId: null,
+        activePreset: null, // Clear preset indicator when loading from MTMR
+        history: {
+          past: [],
+          future: [],
+        },
+      };
+
     default:
       return state;
   }
@@ -445,6 +460,83 @@ export function AppProvider({ children }) {
     dispatch({ type: ActionTypes.DELETE_MY_PRESET, payload: key });
   }, []);
 
+  const loadFromMTMR = useCallback(async () => {
+    try {
+      // Check if server is running
+      const serverRunning = await isServerRunning();
+      if (!serverRunning) {
+        return {
+          success: false,
+          error: 'MTMR Designer Server is not running. Please start the server and try again.'
+        };
+      }
+
+      const result = await loadFromMTMRFile();
+      if (result.success) {
+        // Convert items to full items with IDs, handling nested structures safely
+        const items = processMTMRItems(result.data);
+        dispatch({ type: ActionTypes.LOAD_FROM_MTM, payload: items });
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }, []);
+
+  // Helper function to safely process MTMR items without recursion
+  const processMTMRItems = useCallback((items, processedIds = new Set()) => {
+    return items.map((item) => {
+      // Generate unique ID if not present
+      const id = item.id || `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Prevent infinite recursion by tracking processed items
+      if (processedIds.has(id)) {
+        console.warn('Duplicate item detected, skipping:', id);
+        return null;
+      }
+      processedIds.add(id);
+
+      // Get element definition
+      const definition = getElementDefinition(item.type);
+      
+      // For unknown types, create a generic element preserving all properties
+      if (!definition) {
+        return {
+          id,
+          type: item.type,
+          ...item,
+        };
+      }
+
+      // Create element with default properties and overrides
+      const element = {
+        id,
+        type: item.type,
+        ...definition.defaultProps,
+        ...item,
+      };
+
+      // Handle nested items (groups) separately to avoid recursion
+      if (item.items && Array.isArray(item.items)) {
+        element.items = processMTMRItems(item.items, processedIds);
+      }
+
+      return element;
+    }).filter(Boolean);
+  }, []);
+
+  const saveToMTMR = useCallback(async () => {
+    try {
+      const jsonContent = generateJSON(state.items);
+      const result = await saveToMTMRFile(jsonContent);
+      return result;
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }, [state.items]);
+
   const value = {
     // State
     items: state.items,
@@ -472,6 +564,8 @@ export function AppProvider({ children }) {
     clearActivePreset,
     saveMyPreset,
     deleteMyPreset,
+    loadFromMTMR,
+    saveToMTMR,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

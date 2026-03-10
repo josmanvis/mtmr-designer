@@ -27,7 +27,8 @@ import './App.css';
 function AppContent() {
   const { 
     addItem, selectItem, items, reorderItems, selectedItemId, removeItem, loadItems, clearAll,
-    activePreset, setActivePreset, clearActivePreset, myPresets, saveMyPreset, deleteMyPreset
+    activePreset, setActivePreset, clearActivePreset, myPresets, saveMyPreset, deleteMyPreset,
+    loadFromMTMR, saveToMTMR
   } = useApp();
   const [activeId, setActiveId] = useState(null);
   const [activeType, setActiveType] = useState(null); // 'palette' or 'touchbar'
@@ -103,6 +104,38 @@ function AppContent() {
   const handleDeleteMyPreset = (e, key) => {
     e.stopPropagation();
     deleteMyPreset(key);
+  };
+
+  const handleLoadFromMTMR = async () => {
+    try {
+      const result = await loadFromMTMR();
+      if (result.success) {
+        setErrorToast('✅ Successfully loaded configuration from MTMR');
+        setTimeout(() => setErrorToast(null), 3000);
+      } else {
+        setErrorToast(`❌ Failed to load from MTMR: ${result.error}`);
+        setTimeout(() => setErrorToast(null), 5000);
+      }
+    } catch (error) {
+      setErrorToast(`❌ Error loading from MTMR: ${error.message}`);
+      setTimeout(() => setErrorToast(null), 5000);
+    }
+  };
+
+  const handleUpdateMTMR = async () => {
+    try {
+      const result = await saveToMTMR();
+      if (result.success) {
+        setErrorToast('✅ Successfully updated MTMR configuration');
+        setTimeout(() => setErrorToast(null), 3000);
+      } else {
+        setErrorToast(`❌ Failed to update MTMR: ${result.error}`);
+        setTimeout(() => setErrorToast(null), 5000);
+      }
+    } catch (error) {
+      setErrorToast(`❌ Error updating MTMR: ${error.message}`);
+      setTimeout(() => setErrorToast(null), 5000);
+    }
   };
 
   const sensors = useSensors(
@@ -293,6 +326,21 @@ function AppContent() {
                 title="Save current configuration as preset"
               >
                 💾 Save
+              </button>
+              <button 
+                className="mtmr-btn load-mtmr-btn"
+                onClick={handleLoadFromMTMR}
+                title="Load configuration from MTMR"
+              >
+                📥 Load from MTMR
+              </button>
+              <button 
+                className="mtmr-btn update-mtmr-btn"
+                onClick={handleUpdateMTMR}
+                disabled={items.length === 0}
+                title="Update MTMR with current configuration"
+              >
+                📤 Update MTMR
               </button>
             </div>
           </div>
