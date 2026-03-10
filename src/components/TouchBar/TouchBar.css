@@ -1,0 +1,532 @@
+/* TouchBar Container */
+.touchbar-container {
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* TouchBar Frame (MacBook-like appearance) */
+.touchbar-frame {
+  background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+  border-radius: 6px;
+  padding: 6px 8px;
+  box-shadow: 
+    0 2px 10px rgba(0, 0, 0, 0.5),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.3);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+  border: 1px solid #333;
+}
+
+.touchbar-frame.drag-over {
+  border-color: #007aff;
+  box-shadow: 
+    0 2px 10px rgba(0, 0, 0, 0.5),
+    0 0 15px rgba(0, 122, 255, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* TouchBar Screen */
+.touchbar-screen {
+  background: #1c1c1c;
+  border-radius: 4px;
+  min-height: 36px;
+  min-width: 800px;
+  max-width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+/* TouchBar Items Container */
+.touchbar-items {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 6px;
+  min-height: 36px;
+}
+
+/* Empty State */
+.touchbar-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 600px;
+  min-height: 36px;
+  color: #555;
+  font-size: 13px;
+  font-style: italic;
+}
+
+/* Individual TouchBar Item - macOS Style */
+.touchbar-item {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 10px;
+  min-height: 28px;
+  background: linear-gradient(180deg, #323232 0%, #282828 50%, #1e1e1e 100%);
+  border-radius: 5px;
+  border: none;
+  cursor: grab;
+  user-select: none;
+  transition: all 0.1s ease;
+  position: relative;
+  white-space: nowrap;
+  box-shadow: 
+    0 0.5px 1px rgba(0, 0, 0, 0.3),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.08);
+}
+
+.touchbar-item:hover {
+  background: linear-gradient(180deg, #3a3a3a 0%, #303030 50%, #262626 100%);
+}
+
+.touchbar-item:active {
+  cursor: grabbing;
+  background: linear-gradient(180deg, #282828 0%, #1e1e1e 50%, #1a1a1a 100%);
+  box-shadow: 
+    inset 0 0.5px 1px rgba(0, 0, 0, 0.3);
+}
+
+.touchbar-item.selected {
+  box-shadow: 
+    0 0 0 2px rgba(0, 122, 255, 0.8),
+    0 0.5px 1px rgba(0, 0, 0, 0.3),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.08);
+}
+
+.touchbar-item.dragging {
+  opacity: 0.5;
+}
+
+/* Borderless items */
+.touchbar-item.no-border {
+  background: transparent;
+  box-shadow: none;
+  border-radius: 5px;
+}
+
+.touchbar-item.no-border:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.touchbar-item.no-border:active {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Alignment */
+.touchbar-item.align-left {
+  margin-right: auto;
+}
+
+.touchbar-item.align-right {
+  margin-left: auto;
+}
+
+/* Item Title */
+.touchbar-item-title {
+  color: #e0e0e0;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+  letter-spacing: -0.2px;
+}
+
+/* Item Image */
+.touchbar-item-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.touchbar-item-image img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  filter: brightness(1.1);
+}
+
+.image-placeholder {
+  font-size: 14px;
+}
+
+/* ============================================
+   TYPE-SPECIFIC STYLES
+   ============================================ */
+
+/* Escape Button */
+.touchbar-item.type-escape {
+  min-width: 54px;
+  padding: 4px 12px;
+}
+
+.touchbar-item.type-escape .touchbar-item-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: lowercase;
+}
+
+/* Exit TouchBar Button */
+.touchbar-item.type-exitTouchbar {
+  min-width: 32px;
+  padding: 4px 8px;
+}
+
+/* Brightness & Volume Buttons */
+.touchbar-item.type-brightnessUp,
+.touchbar-item.type-brightnessDown,
+.touchbar-item.type-illuminationUp,
+.touchbar-item.type-illuminationDown {
+  min-width: 36px;
+  padding: 4px 8px;
+}
+
+.touchbar-item.type-volumeUp,
+.touchbar-item.type-volumeDown,
+.touchbar-item.type-mute {
+  min-width: 36px;
+  padding: 4px 8px;
+}
+
+/* Brightness/Volume Icons */
+.touchbar-icon {
+  font-size: 14px;
+  line-height: 1;
+  filter: grayscale(100%) brightness(1.2);
+}
+
+/* Slider Styles */
+.touchbar-item.slider {
+  min-width: 90px;
+  padding: 4px 8px;
+  gap: 6px;
+}
+
+.touchbar-item.type-brightness.slider,
+.touchbar-item.type-volume.slider {
+  background: linear-gradient(180deg, #323232 0%, #282828 50%, #1e1e1e 100%);
+}
+
+.slider-icon {
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.slider-indicator {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 0 2px;
+}
+
+.slider-track {
+  width: 100%;
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 1.5px;
+  position: relative;
+  overflow: hidden;
+}
+
+.slider-track::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 50%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 1.5px;
+}
+
+/* Media Control Buttons */
+.touchbar-item.type-previous,
+.touchbar-item.type-play,
+.touchbar-item.type-next {
+  min-width: 36px;
+  padding: 4px 10px;
+}
+
+.touchbar-item.type-play {
+  min-width: 40px;
+}
+
+/* Battery */
+.touchbar-item.type-battery {
+  min-width: 50px;
+  padding: 4px 8px;
+  gap: 3px;
+}
+
+.battery-icon {
+  font-size: 11px;
+}
+
+.battery-percentage {
+  font-size: 11px;
+  font-weight: 500;
+  color: #e0e0e0;
+}
+
+/* Time Button */
+.touchbar-item.type-timeButton {
+  min-width: 50px;
+  padding: 4px 10px;
+}
+
+.time-display {
+  font-size: 12px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Weather */
+.touchbar-item.type-weather,
+.touchbar-item.type-yandexWeather {
+  min-width: 50px;
+  padding: 4px 8px;
+  gap: 4px;
+}
+
+.weather-icon {
+  font-size: 12px;
+}
+
+.weather-temp {
+  font-size: 11px;
+  font-weight: 500;
+}
+
+/* CPU */
+.touchbar-item.type-cpu {
+  min-width: 45px;
+  padding: 4px 8px;
+}
+
+/* Currency */
+.touchbar-item.type-currency {
+  min-width: 70px;
+  padding: 4px 8px;
+}
+
+/* Music */
+.touchbar-item.type-music {
+  min-width: 80px;
+  max-width: 150px;
+  padding: 4px 8px;
+}
+
+.music-display {
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 140px;
+}
+
+/* Input Source */
+.touchbar-item.type-inputsource {
+  min-width: 32px;
+  padding: 4px 8px;
+}
+
+.input-source-label {
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* Night Shift, DND, Dark Mode */
+.touchbar-item.type-nightShift,
+.touchbar-item.type-dnd,
+.touchbar-item.type-darkMode {
+  min-width: 32px;
+  padding: 4px 8px;
+}
+
+/* Pomodoro */
+.touchbar-item.type-pomodoro {
+  min-width: 50px;
+  padding: 4px 8px;
+}
+
+/* Network */
+.touchbar-item.type-network {
+  min-width: 55px;
+  padding: 4px 8px;
+}
+
+/* Dock */
+.touchbar-item.type-dock {
+  min-width: 60px;
+  padding: 4px 8px;
+}
+
+/* Up Next (Calendar) */
+.touchbar-item.type-upnext {
+  min-width: 80px;
+  padding: 4px 8px;
+}
+
+/* Group Styles */
+.touchbar-item.group {
+  background: linear-gradient(180deg, #383838 0%, #2e2e2e 50%, #242424 100%);
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+}
+
+.group-count {
+  font-size: 9px;
+  color: #888;
+  margin-left: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1px 5px;
+  border-radius: 8px;
+}
+
+/* Close Button */
+.touchbar-item.type-close {
+  min-width: 28px;
+  padding: 4px 6px;
+}
+
+.touchbar-item.type-close .touchbar-item-title {
+  color: #ff5f57;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Static Button */
+.touchbar-item.type-staticButton {
+  min-width: 40px;
+}
+
+/* AppleScript/ShellScript Buttons */
+.touchbar-item.type-appleScriptTitledButton,
+.touchbar-item.type-shellScriptTitledButton {
+  min-width: 50px;
+  max-width: 150px;
+}
+
+.script-output {
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Selection Indicator */
+.selection-indicator {
+  position: absolute;
+  inset: -2px;
+  border: 2px solid #007aff;
+  border-radius: 7px;
+  pointer-events: none;
+}
+
+/* Drag Overlay */
+.touchbar-item-overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  min-height: 28px;
+  background: linear-gradient(180deg, #3a3a3a 0%, #303030 50%, #262626 100%);
+  border-radius: 5px;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.5),
+    0 0 0 2px rgba(0, 122, 255, 0.8);
+  cursor: grabbing;
+}
+
+.touchbar-item-overlay .touchbar-item-title {
+  color: #e0e0e0;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Context Menu */
+.context-menu {
+  background: rgba(40, 40, 40, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  padding: 4px 0;
+  min-width: 130px;
+  box-shadow: 
+    0 4px 16px rgba(0, 0, 0, 0.4),
+    0 0 0 0.5px rgba(255, 255, 255, 0.05);
+}
+
+.context-menu-item {
+  display: block;
+  width: 100%;
+  padding: 6px 12px;
+  background: none;
+  border: none;
+  color: #e0e0e0;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.1s ease;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+}
+
+.context-menu-item:hover {
+  background: rgba(0, 122, 255, 0.3);
+}
+
+.context-menu-item.danger {
+  color: #ff6b6b;
+}
+
+.context-menu-item.danger:hover {
+  background: rgba(255, 107, 107, 0.15);
+}
+
+.context-menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 4px 0;
+}
+
+/* Unknown type */
+.touchbar-item.unknown {
+  border: 1px dashed #ff6b6b;
+  background: linear-gradient(180deg, #3a2a2a 0%, #2a1a1a 100%);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .touchbar-screen {
+    min-width: 100%;
+  }
+  
+  .touchbar-empty {
+    min-width: 300px;
+  }
+}
+
+/* Scrollbar styling */
+.touchbar-screen::-webkit-scrollbar {
+  height: 4px;
+}
+
+.touchbar-screen::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.touchbar-screen::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.touchbar-screen::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}

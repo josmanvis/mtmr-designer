@@ -1,0 +1,143 @@
+/* Palette Container */
+.palette {
+  background: #1e1e1e;
+  border-right: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.palette-header {
+  padding: 16px;
+  border-bottom: 1px solid #333;
+}
+
+.palette-header h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.palette-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+/* Category */
+.palette-category {
+  margin-bottom: 4px;
+}
+
+.palette-category-header {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.palette-category-header:hover {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.category-icon {
+  font-size: 8px;
+  margin-right: 8px;
+  width: 8px;
+}
+
+.category-label {
+  flex: 1;
+  text-align: left;
+}
+
+.category-count {
+  background: #333;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-size: 10px;
+  color: #666;
+}
+
+/* Palette Items */
+.palette-items {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 4px 8px;
+  gap: 4px;
+}
+
+.palette-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: calc(33.333% - 4px);
+  padding: 8px 4px;
+  background: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 6px;
+  cursor: grab;
+  transition: all 0.15s ease;
+}
+
+.palette-item:hover {
+  background: #3a3a3a;
+  border-color: #444;
+  transform: translateY(-1px);
+}
+
+.palette-item:active {
+  cursor: grabbing;
+  transform: translateY(0);
+}
+
+.palette-item-icon {
+  font-size: 20px;
+  margin-bottom: 4px;
+}
+
+.palette-item-label {
+  font-size: 10px;
+  color: #888;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.palette-item:hover .palette-item-label {
+  color: #fff;
+}
+
+/* Scrollbar */
+.palette-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.palette-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.palette-content::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+.palette-content::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}

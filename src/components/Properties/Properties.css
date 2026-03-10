@@ -1,0 +1,376 @@
+/* Properties Panel */
+.properties-panel {
+  background: #1e1e1e;
+  border-left: 1px solid #333;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.properties-header {
+  padding: 16px;
+  border-bottom: 1px solid #333;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.properties-header h2 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.properties-type {
+  font-size: 11px;
+  color: #007aff;
+  background: rgba(0, 122, 255, 0.1);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.properties-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.properties-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding: 20px;
+  text-align: center;
+  color: #666;
+}
+
+/* Property Section */
+.property-section {
+  margin-bottom: 8px;
+}
+
+.property-section-title {
+  margin: 0;
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: #252525;
+  border-top: 1px solid #333;
+  border-bottom: 1px solid #333;
+}
+
+.property-section-content {
+  padding: 8px 16px;
+}
+
+/* Property Field */
+.property-field {
+  margin-bottom: 12px;
+}
+
+.property-label {
+  display: block;
+  font-size: 11px;
+  color: #888;
+  margin-bottom: 4px;
+}
+
+.property-input {
+  width: 100%;
+  padding: 8px 10px;
+  background: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 13px;
+  transition: border-color 0.15s ease;
+}
+
+.property-input:focus {
+  outline: none;
+  border-color: #007aff;
+}
+
+.property-input::placeholder {
+  color: #555;
+}
+
+.property-select {
+  width: 100%;
+  padding: 8px 10px;
+  background: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.property-select:focus {
+  outline: none;
+  border-color: #007aff;
+}
+
+.property-select.small {
+  padding: 4px 8px;
+  font-size: 11px;
+  width: auto;
+}
+
+.property-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  background: #2a2a2a;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+  font-family: 'SF Mono', 'Monaco', 'Menlo', monospace;
+  resize: vertical;
+  min-height: 80px;
+}
+
+.property-textarea:focus {
+  outline: none;
+  border-color: #007aff;
+}
+
+/* Toggle Button */
+.property-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.toggle-button {
+  padding: 6px 12px;
+  background: #333;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #888;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.toggle-button.active {
+  background: #007aff;
+  border-color: #007aff;
+  color: #fff;
+}
+
+/* Image Input */
+.image-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.image-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.property-file-input {
+  padding: 8px;
+  background: #2a2a2a;
+  border: 1px dashed #444;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+}
+
+.image-preview {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+  border-radius: 4px;
+  background: #333;
+}
+
+/* Source Editor */
+.source-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.source-editor .property-select {
+  width: 100%;
+}
+
+/* Alternative Images */
+.alternative-images .alt-images-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.alt-image-item {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: #333;
+  border-radius: 4px;
+}
+
+.alt-image-key {
+  font-size: 11px;
+  color: #fff;
+}
+
+.remove-alt-image {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1;
+}
+
+.remove-alt-image:hover {
+  color: #ff4444;
+}
+
+.add-alt-image {
+  display: flex;
+  gap: 8px;
+}
+
+.add-alt-image .property-input {
+  flex: 1;
+}
+
+.add-button {
+  padding: 8px 12px;
+  background: #333;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.add-button:hover {
+  background: #444;
+}
+
+/* Actions Editor */
+.actions-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.action-item {
+  background: #252525;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 8px;
+}
+
+.action-header {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.action-header .property-select {
+  flex: 1;
+}
+
+.remove-action-button {
+  background: none;
+  border: none;
+  color: #888;
+  cursor: pointer;
+  padding: 4px 8px;
+  font-size: 16px;
+}
+
+.remove-action-button:hover {
+  color: #ff4444;
+}
+
+.action-params {
+  padding-top: 8px;
+  border-top: 1px solid #333;
+}
+
+.add-action-button {
+  width: 100%;
+  padding: 8px;
+  background: transparent;
+  border: 1px dashed #444;
+  border-radius: 4px;
+  color: #888;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.add-action-button:hover {
+  border-color: #007aff;
+  color: #007aff;
+}
+
+/* Delete Button */
+.properties-actions {
+  padding: 16px;
+  border-top: 1px solid #333;
+  margin-top: auto;
+}
+
+.delete-button {
+  width: 100%;
+  padding: 10px;
+  background: rgba(255, 68, 68, 0.1);
+  border: 1px solid rgba(255, 68, 68, 0.3);
+  border-radius: 4px;
+  color: #ff4444;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.delete-button:hover {
+  background: rgba(255, 68, 68, 0.2);
+  border-color: #ff4444;
+}
+
+/* No Properties */
+.no-properties {
+  color: #666;
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* Scrollbar */
+.properties-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+.properties-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.properties-content::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 3px;
+}
+
+.properties-content::-webkit-scrollbar-thumb:hover {
+  background: #444;
+}
