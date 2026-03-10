@@ -125,6 +125,49 @@
   cursor: not-allowed;
 }
 
+/* MTMR Buttons */
+.mtmr-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid #444;
+  color: #fff;
+}
+
+.load-mtmr-btn {
+  background: #2a2a2a;
+  border-color: #444;
+}
+
+.load-mtmr-btn:hover:not(:disabled) {
+  background: #333;
+  border-color: #555;
+}
+
+.update-mtmr-btn {
+  background: #007aff;
+  border-color: #007aff;
+  color: #fff;
+}
+
+.update-mtmr-btn:hover:not(:disabled) {
+  background: #0066d6;
+  border-color: #0066d6;
+}
+
+.mtmr-btn:disabled {
+  background: #444;
+  border-color: #444;
+  color: #888;
+  cursor: not-allowed;
+}
+
 .preset-dropdown-backdrop {
   position: fixed;
   top: 0;
