@@ -1,6 +1,7 @@
 import { createContext, useContext, useReducer, useCallback, useEffect } from 'react';
-import { createElement } from '../data/elementDefinitions';
+import { createElement, getElementDefinition } from '../data/elementDefinitions';
 import { generateJSON, parseJSON } from '../utils/jsonGenerator';
+import { loadFromMTMR as loadFromMTMRFile, saveToMTMR as saveToMTMRFile, isServerRunning } from '../utils/mtmrFileSystem';
 
 // Initial state
 const initialState = {
@@ -8,6 +9,7 @@ const initialState = {
   selectedItemId: null,
   activePreset: null, // Track which preset is currently loaded
   myPresets: [], // User's saved presets
+  isDirty: false, // Track unsaved changes since last load/save
   history: {
     past: [],
     future: [],
@@ -38,6 +40,9 @@ const ActionTypes = {
   SAVE_MY_PRESET: 'SAVE_MY_PRESET',
   DELETE_MY_PRESET: 'DELETE_MY_PRESET',
   LOAD_MY_PRESETS: 'LOAD_MY_PRESETS',
+  LOAD_FROM_MTM: 'LOAD_FROM_MTM',
+  SAVE_TO_MTM: 'SAVE_TO_MTM',
+  MARK_CLEAN: 'MARK_CLEAN',
 };
 
 // Reducer
@@ -49,7 +54,7 @@ function appReducer(state, action) {
         ...state,
         items: newItems,
         selectedItemId: action.payload.id,
-        activePreset: null, // Clear preset indicator on modification
+        isDirty: true,
         history: {
           past: [...state.history.past, state.items],
           future: [],
@@ -63,7 +68,7 @@ function appReducer(state, action) {
         ...state,
         items: newItems,
         selectedItemId: state.selectedItemId === action.payload ? null : state.selectedItemId,
-        activePreset: null, // Clear preset indicator on modification
+        isDirty: true,
         history: {
           past: [...state.history.past, state.items],
           future: [],
@@ -78,7 +83,7 @@ function appReducer(state, action) {
       return {
         ...state,
         items: newItems,
-        activePreset: null, // Clear preset indicator on modification
+        isDirty: true,
         history: {
           past: [...state.history.past, state.items],
           future: [],
@@ -90,7 +95,7 @@ function appReducer(state, action) {
       return {
         ...state,
         items: action.payload,
-        activePreset: null, // Clear preset indicator on modification
+        isDirty: true,
         history: {
           past: [...state.history.past, state.items],
           future: [],
@@ -115,6 +120,7 @@ function appReducer(state, action) {
         ...state,
         items: action.payload,
         selectedItemId: null,
+        isDirty: false,
         history: {
           past: [],
           future: [],
@@ -174,6 +180,7 @@ function appReducer(state, action) {
       return {
         ...state,
         items: newItems,
+        isDirty: true,
         history: {
           past: [...state.history.past, state.items],
           future: [],
@@ -195,6 +202,7 @@ function appReducer(state, action) {
       return {
         ...state,
         items: newItems,
+        isDirty: true,
         history: {
           past: [...state.history.past, state.items],
           future: [],
@@ -216,6 +224,7 @@ function appReducer(state, action) {
       return {
         ...state,
         items: newItems,
+        isDirty: true,
         history: {
           past: [...state.history.past, state.items],
           future: [],
@@ -239,6 +248,7 @@ function appReducer(state, action) {
       return {
         ...state,
         items: newItems,
+        isDirty: true,
         history: {
           past: [...state.history.past, state.items],
           future: [],
@@ -276,6 +286,8 @@ function appReducer(state, action) {
       return {
         ...state,
         myPresets: newMyPresets,
+        activePreset: { key, type: 'my-preset', name },
+        isDirty: false,
       };
     }
 
@@ -293,6 +305,25 @@ function appReducer(state, action) {
       return {
         ...state,
         myPresets: action.payload,
+      };
+
+    case ActionTypes.LOAD_FROM_MTM:
+      return {
+        ...state,
+        items: action.payload,
+        selectedItemId: null,
+        activePreset: null,
+        isDirty: false,
+        history: {
+          past: [],
+          future: [],
+        },
+      };
+
+    case ActionTypes.MARK_CLEAN:
+      return {
+        ...state,
+        isDirty: false,
       };
 
     default:
@@ -441,9 +472,99 @@ export function AppProvider({ children }) {
     return key;
   }, [state.items]);
 
+  const overwriteMyPreset = useCallback((key) => {
+    const existing = state.myPresets.find((p) => p.key === key);
+    if (!existing) return;
+    const items = state.items.map((item) => {
+      const { id, ...rest } = item;
+      return rest;
+    });
+    dispatch({ type: ActionTypes.SAVE_MY_PRESET, payload: { key, name: existing.name, items } });
+  }, [state.items, state.myPresets]);
+
   const deleteMyPreset = useCallback((key) => {
     dispatch({ type: ActionTypes.DELETE_MY_PRESET, payload: key });
   }, []);
+
+  const loadFromMTMR = useCallback(async () => {
+    try {
+      // Check if server is running
+      const serverRunning = await isServerRunning();
+      if (!serverRunning) {
+        return {
+          success: false,
+          error: 'MTMR Designer Server is not running. Please start the server and try again.'
+        };
+      }
+
+      const result = await loadFromMTMRFile();
+      if (result.success) {
+        // Convert items to full items with IDs, handling nested structures safely
+        const items = processMTMRItems(result.data);
+        dispatch({ type: ActionTypes.LOAD_FROM_MTM, payload: items });
+        return { success: true };
+      } else {
+        return { success: false, error: result.error };
+      }
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }, []);
+
+  // Helper function to safely process MTMR items without recursion
+  const processMTMRItems = useCallback((items, processedIds = new Set()) => {
+    return items.map((item) => {
+      // Generate unique ID if not present
+      const id = item.id || `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      // Prevent infinite recursion by tracking processed items
+      if (processedIds.has(id)) {
+        console.warn('Duplicate item detected, skipping:', id);
+        return null;
+      }
+      processedIds.add(id);
+
+      // Get element definition
+      const definition = getElementDefinition(item.type);
+      
+      // For unknown types, create a generic element preserving all properties
+      if (!definition) {
+        return {
+          id,
+          type: item.type,
+          ...item,
+        };
+      }
+
+      // Create element with default properties and overrides
+      const element = {
+        id,
+        type: item.type,
+        ...definition.defaultProps,
+        ...item,
+      };
+
+      // Handle nested items (groups) separately to avoid recursion
+      if (item.items && Array.isArray(item.items)) {
+        element.items = processMTMRItems(item.items, processedIds);
+      }
+
+      return element;
+    }).filter(Boolean);
+  }, []);
+
+  const saveToMTMR = useCallback(async () => {
+    try {
+      const jsonContent = generateJSON(state.items);
+      const result = await saveToMTMRFile(jsonContent);
+      if (result.success) {
+        dispatch({ type: ActionTypes.MARK_CLEAN });
+      }
+      return result;
+    } catch (error) {
+      return { success: false, error: error.message };
+    }
+  }, [state.items]);
 
   const value = {
     // State
@@ -453,6 +574,7 @@ export function AppProvider({ children }) {
     canRedo,
     activePreset: state.activePreset,
     myPresets: state.myPresets,
+    isDirty: state.isDirty,
 
     // Actions
     addItem,
@@ -471,7 +593,10 @@ export function AppProvider({ children }) {
     setActivePreset,
     clearActivePreset,
     saveMyPreset,
+    overwriteMyPreset,
     deleteMyPreset,
+    loadFromMTMR,
+    saveToMTMR,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#1a1a2e"/>
+      <stop offset="100%" stop-color="#16213e"/>
+    </linearGradient>
+    <linearGradient id="bar" x1="12" y1="40" x2="68" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#007aff"/>
+      <stop offset="100%" stop-color="#5856d6"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0" y1="0" x2="80" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#007aff"/>
+      <stop offset="50%" stop-color="#5856d6"/>
+      <stop offset="100%" stop-color="#af52de"/>
+    </linearGradient>
+  </defs>
+  <rect width="80" height="80" rx="18" fill="url(#bg)"/>
+  <rect x="8" y="8" width="64" height="64" rx="14" stroke="url(#accent)" stroke-width="1.5" fill="none" opacity="0.3"/>
+  <!-- Touch Bar shape -->
+  <rect x="12" y="33" width="56" height="14" rx="7" fill="url(#bar)" opacity="0.9"/>
+  <!-- Buttons on the bar -->
+  <rect x="16" y="36.5" width="10" height="7" rx="3.5" fill="#fff" opacity="0.9"/>
+  <rect x="29" y="36.5" width="10" height="7" rx="3.5" fill="#fff" opacity="0.6"/>
+  <rect x="42" y="36.5" width="10" height="7" rx="3.5" fill="#fff" opacity="0.4"/>
+  <rect x="55" y="36.5" width="10" height="7" rx="3.5" fill="#fff" opacity="0.25"/>
+  <!-- Cursor / designer indicator -->
+  <path d="M58 18 L64 24 L60 24 L62 30 L59 31 L57 25 L54 27 Z" fill="url(#accent)" opacity="0.85"/>
+</svg>
