@@ -25,14 +25,14 @@ import { getPreset, getPresetList, communityPresets, fetchCommunityPreset } from
 import './App.css';
 
 function AppContent() {
-  const { 
+  const {
     addItem, selectItem, items, reorderItems, selectedItemId, removeItem, loadItems, clearAll,
-    activePreset, setActivePreset, clearActivePreset, myPresets, saveMyPreset, deleteMyPreset,
-    loadFromMTMR, saveToMTMR
+    activePreset, setActivePreset, clearActivePreset, myPresets, saveMyPreset, overwriteMyPreset, deleteMyPreset,
+    loadFromMTMR, saveToMTMR, isDirty
   } = useApp();
   const [activeId, setActiveId] = useState(null);
-  const [activeType, setActiveType] = useState(null); // 'palette' or 'touchbar'
-  const [showPresetDropdown, setShowPresetDropdown] = useState(false);
+  const [activeType, setActiveType] = useState(null);
+  const [openMenu, setOpenMenu] = useState(null);
   const [showCommunitySubmenu, setShowCommunitySubmenu] = useState(false);
   const [showMyPresetsSubmenu, setShowMyPresetsSubmenu] = useState(false);
   const [loadingCommunityPreset, setLoadingCommunityPreset] = useState(null);
@@ -41,55 +41,80 @@ function AppContent() {
   const [errorToast, setErrorToast] = useState(null);
   const presetList = getPresetList();
 
+  const toggleMenu = (menu) => {
+    setOpenMenu((prev) => (prev === menu ? null : menu));
+    if (menu !== 'presets') {
+      setShowCommunitySubmenu(false);
+      setShowMyPresetsSubmenu(false);
+    }
+  };
+
+  const handleMenuHover = (menu) => {
+    if (openMenu !== null) {
+      setOpenMenu(menu);
+      if (menu !== 'presets') {
+        setShowCommunitySubmenu(false);
+        setShowMyPresetsSubmenu(false);
+      }
+    }
+  };
+
+  const closeMenus = () => {
+    setOpenMenu(null);
+    setShowCommunitySubmenu(false);
+    setShowMyPresetsSubmenu(false);
+  };
+
   const handlePresetSelect = (presetKey, presetType = 'built-in') => {
     const preset = getPreset(presetKey);
     if (!preset) return;
-
-    // Convert preset items to full items with IDs
     const newItems = preset.items
       .map((item) => createElement(item.type, item))
       .filter(Boolean);
-
     loadItems(newItems);
     setActivePreset({ key: presetKey, type: presetType, name: preset.name });
-    setShowPresetDropdown(false);
+    closeMenus();
   };
 
   const handleMyPresetSelect = (preset) => {
-    // Convert preset items to full items with IDs
     const newItems = preset.items
       .map((item) => createElement(item.type, item))
       .filter(Boolean);
     loadItems(newItems);
     setActivePreset({ key: preset.key, type: 'my-preset', name: preset.name });
-    setShowPresetDropdown(false);
-    setShowMyPresetsSubmenu(false);
+    closeMenus();
   };
 
-  const handleCommunityPresetSelect = async (presetName) => {
-    setLoadingCommunityPreset(presetName);
+  const handleCommunityPresetSelect = async (communityName) => {
+    setLoadingCommunityPreset(communityName);
     try {
-      const preset = await fetchCommunityPreset(presetName);
+      const preset = await fetchCommunityPreset(communityName);
       if (preset && preset.items && preset.items.length > 0) {
-        // Convert preset items to full items with IDs
         const newItems = preset.items
           .map((item) => createElement(item.type, item))
           .filter(Boolean);
         loadItems(newItems);
-        setActivePreset({ key: presetName, type: 'community', name: presetName });
+        setActivePreset({ key: communityName, type: 'community', name: communityName });
       } else {
-        // Show error toast for empty/invalid preset
-        setErrorToast(`Preset "${presetName}" not found or is empty`);
+        setErrorToast(`Preset "${communityName}" not found or is empty`);
         setTimeout(() => setErrorToast(null), 3000);
       }
     } catch (error) {
       console.error('Failed to load community preset:', error);
-      setErrorToast(`Failed to load preset "${presetName}"`);
+      setErrorToast(`Failed to load preset "${communityName}"`);
       setTimeout(() => setErrorToast(null), 3000);
     } finally {
       setLoadingCommunityPreset(null);
-      setShowPresetDropdown(false);
-      setShowCommunitySubmenu(false);
+      closeMenus();
+    }
+  };
+
+  const handleSave = () => {
+    closeMenus();
+    if (activePreset?.type === 'my-preset') {
+      overwriteMyPreset(activePreset.key);
+    } else {
+      setShowSaveModal(true);
     }
   };
 
@@ -107,6 +132,7 @@ function AppContent() {
   };
 
   const handleLoadFromMTMR = async () => {
+    closeMenus();
     try {
       const result = await loadFromMTMR();
       if (result.success) {
@@ -123,6 +149,7 @@ function AppContent() {
   };
 
   const handleUpdateMTMR = async () => {
+    closeMenus();
     try {
       const result = await saveToMTMR();
       if (result.success) {
@@ -152,7 +179,6 @@ function AppContent() {
   const handleDragStart = (event) => {
     const { active } = event;
     setActiveId(active.id);
-    
     if (active.data.current?.type === 'palette-item') {
       setActiveType('palette');
     } else {
@@ -162,37 +188,28 @@ function AppContent() {
 
   const handleDragEnd = (event) => {
     const { active, over } = event;
-
-    // Handle dropping from palette to touchbar
     if (active.data.current?.type === 'palette-item') {
       if (over) {
-        // Add the item to the touchbar
         const elementType = active.data.current.elementType;
         const newItem = addItem(elementType);
         if (newItem) {
           selectItem(newItem.id);
         }
       }
-    } 
-    // Handle reordering within touchbar
-    else if (over && active.id !== over.id) {
+    } else if (over && active.id !== over.id) {
       const oldIndex = items.findIndex((item) => item.id === active.id);
       const newIndex = items.findIndex((item) => item.id === over.id);
       if (oldIndex !== -1 && newIndex !== -1) {
         reorderItems(arrayMove(items, oldIndex, newIndex));
       }
     }
-
     setActiveId(null);
     setActiveType(null);
   };
 
-  // Get active item for drag overlay
   const activeItem = activeType === 'touchbar' ? items.find((item) => item.id === activeId) : null;
   const activeItemDef = activeItem ? getElementDefinition(activeItem.type) : null;
-  
-  // Get palette item for drag overlay
-  const paletteItemDef = activeType === 'palette' && activeId ? 
+  const paletteItemDef = activeType === 'palette' && activeId ?
     getElementDefinition(activeId.replace('palette-', '')) : null;
 
   return (
@@ -203,157 +220,195 @@ function AppContent() {
       onDragEnd={handleDragEnd}
     >
       <div className="app">
-        <header className="app-header">
-          <div className="header-left">
-            <h1 className="app-title">
-              <span className="title-icon">⌨️</span>
-              MTMR Designer
-            </h1>
-            <div className="preset-buttons-container">
-              <div className="preset-dropdown-container">
-                <button 
-                  className="preset-dropdown-trigger"
-                  onClick={() => setShowPresetDropdown(!showPresetDropdown)}
-                >
-                  <span>📋 Presets</span>
-                  <span className="dropdown-arrow">{showPresetDropdown ? '▲' : '▼'}</span>
-                </button>
-                {showPresetDropdown && (
-                  <>
-                    <div 
-                      className="preset-dropdown-backdrop"
-                      onClick={() => {
-                        setShowPresetDropdown(false);
-                        setShowCommunitySubmenu(false);
-                        setShowMyPresetsSubmenu(false);
-                      }}
-                    />
-                    <div className="preset-dropdown-menu">
-                      {/* My Presets submenu */}
-                      {myPresets.length > 0 && (
-                        <div 
-                          className="preset-submenu-wrapper"
-                          onMouseEnter={() => setShowMyPresetsSubmenu(true)}
-                          onMouseLeave={() => setShowMyPresetsSubmenu(false)}
-                        >
-                          <div className="preset-dropdown-item preset-submenu-trigger">
-                            <span className="preset-name">📁 My Presets</span>
-                            <span className="preset-description">{myPresets.length} saved preset{myPresets.length !== 1 ? 's' : ''}</span>
-                            <span className="submenu-arrow">▶</span>
-                          </div>
-                          {showMyPresetsSubmenu && (
-                            <div className="preset-submenu">
-                              {myPresets.map((preset) => (
-                                <div
-                                  key={preset.key}
-                                  className={`preset-submenu-item ${activePreset?.key === preset.key ? 'active' : ''}`}
-                                  onClick={() => handleMyPresetSelect(preset)}
-                                >
-                                  <span className="preset-submenu-item-name">
-                                    {activePreset?.key === preset.key && <span className="preset-check">✓</span>}
-                                    {preset.name}
-                                  </span>
-                                  <button
-                                    className="preset-delete-btn"
-                                    onClick={(e) => handleDeleteMyPreset(e, preset.key)}
-                                    title="Delete preset"
-                                  >
-                                    ✕
-                                  </button>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
-                      )}
+        <header className="app-menubar">
+          {openMenu && <div className="menu-backdrop" onClick={closeMenus} />}
+          <div className="menubar-menus">
+            {/* File Menu */}
+            <div className="menu-wrapper">
+              <button
+                className={`menu-trigger ${openMenu === 'file' ? 'open' : ''}`}
+                onClick={() => toggleMenu('file')}
+                onMouseEnter={() => handleMenuHover('file')}
+              >
+                File
+              </button>
+              {openMenu === 'file' && (
+                <div className="menu-dropdown">
+                  <button className="menu-dropdown-item" onClick={() => { clearAll(); closeMenus(); }}>
+                    New
+                  </button>
+                  <div className="menu-separator" />
+                  <button className="menu-dropdown-item" onClick={handleLoadFromMTMR}>
+                    Load from MTMR
+                  </button>
+                  <button className="menu-dropdown-item" onClick={handleUpdateMTMR} disabled={!isDirty}>
+                    Save to MTMR
+                  </button>
+                  <div className="menu-separator" />
+                  <button className="menu-dropdown-item" onClick={handleSave} disabled={!isDirty}>
+                    Save
+                  </button>
+                  <button
+                    className="menu-dropdown-item"
+                    onClick={() => { setShowSaveModal(true); closeMenus(); }}
+                  >
+                    Save as Preset...
+                  </button>
+                </div>
+              )}
+            </div>
 
-                      {/* Built-in presets */}
-                      {presetList.map((preset) => (
-                        <button
-                          key={preset.key}
-                          className={`preset-dropdown-item ${activePreset?.key === preset.key && activePreset?.type === 'built-in' ? 'active' : ''}`}
-                          onClick={() => handlePresetSelect(preset.key)}
-                        >
-                          <span className="preset-name">
-                            {activePreset?.key === preset.key && activePreset?.type === 'built-in' && <span className="preset-check">✓</span>}
-                            {preset.name}
-                          </span>
-                          <span className="preset-description">{preset.description}</span>
-                        </button>
-                      ))}
+            {/* Edit Menu */}
+            <div className="menu-wrapper">
+              <button
+                className={`menu-trigger ${openMenu === 'edit' ? 'open' : ''}`}
+                onClick={() => toggleMenu('edit')}
+                onMouseEnter={() => handleMenuHover('edit')}
+              >
+                Edit
+              </button>
+              {openMenu === 'edit' && (
+                <div className="menu-dropdown">
+                  <button
+                    className="menu-dropdown-item"
+                    onClick={() => { if (selectedItemId) removeItem(selectedItemId); closeMenus(); }}
+                    disabled={!selectedItemId}
+                  >
+                    Delete
+                  </button>
+                  <div className="menu-separator" />
+                  <button className="menu-dropdown-item" onClick={() => { clearAll(); closeMenus(); }}>
+                    Clear All
+                  </button>
+                </div>
+              )}
+            </div>
 
-                      {/* Community Presets submenu */}
-                      <div 
-                        className="preset-submenu-wrapper"
-                        onMouseEnter={() => setShowCommunitySubmenu(true)}
-                        onMouseLeave={() => setShowCommunitySubmenu(false)}
+            {/* Presets Menu */}
+            <div className="menu-wrapper">
+              <button
+                className={`menu-trigger ${openMenu === 'presets' ? 'open' : ''}`}
+                onClick={() => toggleMenu('presets')}
+                onMouseEnter={() => handleMenuHover('presets')}
+              >
+                Presets
+              </button>
+              {openMenu === 'presets' && (
+                <div className="menu-dropdown">
+                  {myPresets.length > 0 && (
+                    <>
+                      <div
+                        className="menu-submenu-wrapper"
+                        onMouseEnter={() => setShowMyPresetsSubmenu(true)}
+                        onMouseLeave={() => setShowMyPresetsSubmenu(false)}
                       >
-                        <div className="preset-dropdown-item preset-submenu-trigger">
-                          <span className="preset-name">🌐 Community Presets</span>
-                          <span className="preset-description">From MTMR-presets repository</span>
-                          <span className="submenu-arrow">▶</span>
-                        </div>
-                        {showCommunitySubmenu && (
-                          <div className="preset-submenu">
-                            {communityPresets.map((presetName) => (
-                              <button
-                                key={presetName}
-                                className={`preset-submenu-item ${activePreset?.key === presetName && activePreset?.type === 'community' ? 'active' : ''}`}
-                                onClick={() => handleCommunityPresetSelect(presetName)}
-                                disabled={loadingCommunityPreset === presetName}
+                        <button className="menu-dropdown-item menu-has-submenu">
+                          My Presets
+                          <span className="menu-submenu-arrow">&#9654;</span>
+                        </button>
+                        {showMyPresetsSubmenu && (
+                          <div className="menu-submenu">
+                            {myPresets.map((preset) => (
+                              <div
+                                key={preset.key}
+                                className={`menu-dropdown-item menu-submenu-entry ${activePreset?.key === preset.key ? 'active' : ''}`}
+                                onClick={() => handleMyPresetSelect(preset)}
                               >
-                                {loadingCommunityPreset === presetName ? (
-                                  <span className="preset-loading">⏳ Loading...</span>
-                                ) : (
-                                  <span>
-                                    {activePreset?.key === presetName && activePreset?.type === 'community' && <span className="preset-check">✓</span>}
-                                    {presetName}
-                                  </span>
-                                )}
-                              </button>
+                                <span className="menu-item-label">
+                                  {activePreset?.key === preset.key && <span className="menu-check">&#10003;</span>}
+                                  {preset.name}
+                                </span>
+                                <button
+                                  className="menu-delete-btn"
+                                  onClick={(e) => handleDeleteMyPreset(e, preset.key)}
+                                  title="Delete preset"
+                                >
+                                  &#10005;
+                                </button>
+                              </div>
                             ))}
                           </div>
                         )}
                       </div>
-                    </div>
-                  </>
-                )}
-              </div>
-              <button 
-                className="save-preset-btn"
-                onClick={() => setShowSaveModal(true)}
-                disabled={items.length === 0}
-                title="Save current configuration as preset"
+                      <div className="menu-separator" />
+                    </>
+                  )}
+
+                  {presetList.map((preset) => (
+                    <button
+                      key={preset.key}
+                      className={`menu-dropdown-item ${activePreset?.key === preset.key && activePreset?.type === 'built-in' ? 'active' : ''}`}
+                      onClick={() => handlePresetSelect(preset.key)}
+                    >
+                      {activePreset?.key === preset.key && activePreset?.type === 'built-in' && <span className="menu-check">&#10003;</span>}
+                      {preset.name}
+                    </button>
+                  ))}
+
+                  <div className="menu-separator" />
+
+                  <div
+                    className="menu-submenu-wrapper"
+                    onMouseEnter={() => setShowCommunitySubmenu(true)}
+                    onMouseLeave={() => setShowCommunitySubmenu(false)}
+                  >
+                    <button className="menu-dropdown-item menu-has-submenu">
+                      Community Presets
+                      <span className="menu-submenu-arrow">&#9654;</span>
+                    </button>
+                    {showCommunitySubmenu && (
+                      <div className="menu-submenu">
+                        {communityPresets.map((name) => (
+                          <button
+                            key={name}
+                            className={`menu-dropdown-item ${activePreset?.key === name && activePreset?.type === 'community' ? 'active' : ''}`}
+                            onClick={() => handleCommunityPresetSelect(name)}
+                            disabled={loadingCommunityPreset === name}
+                          >
+                            {loadingCommunityPreset === name ? (
+                              'Loading...'
+                            ) : (
+                              <>
+                                {activePreset?.key === name && activePreset?.type === 'community' && <span className="menu-check">&#10003;</span>}
+                                {name}
+                              </>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Help Menu */}
+            <div className="menu-wrapper">
+              <button
+                className={`menu-trigger ${openMenu === 'help' ? 'open' : ''}`}
+                onClick={() => toggleMenu('help')}
+                onMouseEnter={() => handleMenuHover('help')}
               >
-                💾 Save
+                Help
               </button>
-              <button 
-                className="mtmr-btn load-mtmr-btn"
-                onClick={handleLoadFromMTMR}
-                title="Load configuration from MTMR"
-              >
-                📥 Load from MTMR
-              </button>
-              <button 
-                className="mtmr-btn update-mtmr-btn"
-                onClick={handleUpdateMTMR}
-                disabled={items.length === 0}
-                title="Update MTMR with current configuration"
-              >
-                📤 Update MTMR
-              </button>
+              {openMenu === 'help' && (
+                <div className="menu-dropdown">
+                  <a
+                    className="menu-dropdown-item"
+                    href="https://github.com/Toxblh/MTMR"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={closeMenus}
+                  >
+                    MTMR Documentation
+                  </a>
+                </div>
+              )}
             </div>
           </div>
-          <div className="header-right">
-            <a
-              href="https://github.com/Toxblh/MTMR"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="header-link"
-            >
-              MTMR Docs
-            </a>
-          </div>
+          {activePreset && (
+            <span className="menubar-status">{activePreset.name}</span>
+          )}
         </header>
 
         <main className="app-main">
@@ -368,9 +423,11 @@ function AppContent() {
             <JsonOutput />
           </section>
 
-          <aside className="sidebar-right">
-            <PropertiesPanel />
-          </aside>
+          {selectedItemId && (
+            <aside className="sidebar-right">
+              <PropertiesPanel />
+            </aside>
+          )}
         </main>
 
         <footer className="app-footer">
@@ -395,15 +452,12 @@ function AppContent() {
         )}
       </DragOverlay>
 
-      {/* Error Toast */}
       {errorToast && (
         <div className="error-toast">
-          <span className="error-toast-icon">⚠️</span>
           <span className="error-toast-message">{errorToast}</span>
         </div>
       )}
 
-      {/* Save Preset Modal */}
       {showSaveModal && (
         <div className="modal-backdrop" onClick={() => setShowSaveModal(false)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
