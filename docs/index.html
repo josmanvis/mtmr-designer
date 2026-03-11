@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MTMR Designer — Visual Touch Bar Preset Designer</title>
+  <meta name="description" content="A visual drag-and-drop designer for MTMR Touch Bar presets. Build, preview, and export custom macOS Touch Bar configurations." />
+  <meta name="theme-color" content="#0a0a0f" />
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0a0a0f;
+      --bg-raised: #111118;
+      --bg-card:   #16161f;
+      --bg-code:   #1c1c28;
+      --border:    #222233;
+      --border-subtle: #1a1a2a;
+      --text:      #e0e0e8;
+      --text-dim:  #8888a0;
+      --text-muted:#555566;
+      --accent:    #007aff;
+      --accent2:   #5856d6;
+      --accent3:   #af52de;
+      --green:     #34c759;
+      --radius:    12px;
+      --radius-lg: 20px;
+      --max-w:     1120px;
+      --font:      -apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', system-ui, sans-serif;
+      --mono:      'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+
+    a { color: var(--accent); text-decoration: none; transition: color .15s; }
+    a:hover { color: #339aff; }
+
+    ::selection { background: rgba(0, 122, 255, .3); }
+
+    /* ── Ambient glow ────────────────────────────────────── */
+    .glow {
+      position: fixed;
+      pointer-events: none;
+      z-index: -1;
+    }
+    .glow-1 {
+      width: 800px; height: 800px;
+      top: -200px; left: -200px;
+      background: radial-gradient(circle, rgba(0,122,255,.06) 0%, transparent 70%);
+    }
+    .glow-2 {
+      width: 700px; height: 700px;
+      bottom: -100px; right: -200px;
+      background: radial-gradient(circle, rgba(88,86,214,.05) 0%, transparent 70%);
+    }
+
+    /* ── Navigation ──────────────────────────────────────── */
+    nav {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      padding: 0 24px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(10, 10, 15, .82);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      font-size: 15px;
+      color: #fff;
+    }
+
+    .nav-brand img { width: 28px; height: 28px; }
+
+    .nav-links {
+      display: flex;
+      gap: 28px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dim);
+      transition: color .15s;
+    }
+    .nav-links a:hover { color: #fff; }
+
+    .nav-cta {
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff !important;
+      background: var(--accent);
+      padding: 6px 16px;
+      border-radius: 8px;
+      transition: background .15s, transform .1s;
+    }
+    .nav-cta:hover { background: #0066d6; transform: translateY(-1px); }
+
+    /* ── Hero ─────────────────────────────────────────────── */
+    .hero {
+      padding: 160px 24px 100px;
+      text-align: center;
+      position: relative;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 16px;
+      border-radius: 100px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--accent);
+      background: rgba(0,122,255,.08);
+      border: 1px solid rgba(0,122,255,.15);
+      margin-bottom: 28px;
+      letter-spacing: .02em;
+    }
+
+    .hero h1 {
+      font-size: clamp(40px, 7vw, 72px);
+      font-weight: 700;
+      letter-spacing: -.03em;
+      line-height: 1.08;
+      color: #fff;
+      margin-bottom: 20px;
+    }
+
+    .hero h1 .gradient {
+      background: linear-gradient(135deg, var(--accent), var(--accent2), var(--accent3));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: clamp(16px, 2.2vw, 20px);
+      color: var(--text-dim);
+      max-width: 580px;
+      margin: 0 auto 40px;
+      line-height: 1.6;
+    }
+
+    .hero-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .15s;
+      border: none;
+      text-decoration: none;
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      color: #fff;
+    }
+    .btn-primary:hover { background: #0066d6; color: #fff; transform: translateY(-1px); box-shadow: 0 8px 24px rgba(0,122,255,.25); }
+
+    .btn-secondary {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .btn-secondary:hover { border-color: #333; color: #fff; transform: translateY(-1px); }
+
+    /* ── Touch Bar Demo ──────────────────────────────────── */
+    .touchbar-demo {
+      max-width: 720px;
+      margin: 60px auto 0;
+      padding: 0 24px;
+    }
+
+    .touchbar-frame {
+      background: #1c1c1e;
+      border-radius: 14px;
+      padding: 12px 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.06),
+        0 20px 60px rgba(0,0,0,.5),
+        0 0 80px rgba(0,122,255,.06);
+      overflow-x: auto;
+    }
+
+    .tb-item {
+      flex-shrink: 0;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #fff;
+      background: rgba(255,255,255,.08);
+      white-space: nowrap;
+      transition: background .15s;
+    }
+
+    .tb-item:hover { background: rgba(255,255,255,.14); }
+    .tb-item.active { background: var(--accent); }
+
+    .tb-slider {
+      flex-shrink: 0;
+      width: 80px;
+      height: 4px;
+      background: rgba(255,255,255,.12);
+      border-radius: 2px;
+      position: relative;
+      margin: 0 4px;
+    }
+    .tb-slider::after {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 55%;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+    .tb-slider-knob {
+      position: absolute;
+      width: 14px; height: 14px;
+      background: #fff;
+      border-radius: 50%;
+      top: 50%;
+      left: 55%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 1px 4px rgba(0,0,0,.4);
+    }
+
+    .tb-spacer { flex: 1; }
+
+    /* ── Section layout ──────────────────────────────────── */
+    section {
+      padding: 100px 24px;
+    }
+
+    .section-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .1em;
+      color: var(--accent);
+      margin-bottom: 12px;
+    }
+
+    .section-title {
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700;
+      letter-spacing: -.025em;
+      color: #fff;
+      margin-bottom: 16px;
+      line-height: 1.15;
+    }
+
+    .section-desc {
+      font-size: 17px;
+      color: var(--text-dim);
+      max-width: 600px;
+      line-height: 1.65;
+      margin-bottom: 56px;
+    }
+
+    /* ── Features Grid ───────────────────────────────────── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .feature-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+      transition: border-color .2s, transform .2s, box-shadow .2s;
+    }
+
+    .feature-card:hover {
+      border-color: rgba(0,122,255,.25);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(0,0,0,.2);
+    }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin-bottom: 16px;
+      background: rgba(0,122,255,.1);
+      color: var(--accent);
+    }
+
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    /* ── Elements section ────────────────────────────────── */
+    .elements-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .element-group {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px;
+    }
+
+    .element-group h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .element-group .count {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .element-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .element-tag {
+      font-family: var(--mono);
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 5px;
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+    }
+
+    /* ── Code / Install ──────────────────────────────────── */
+    .install-block {
+      max-width: 600px;
+    }
+
+    .code-block {
+      background: var(--bg-code);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 24px 28px;
+      font-family: var(--mono);
+      font-size: 13px;
+      line-height: 1.8;
+      color: var(--text);
+      overflow-x: auto;
+      position: relative;
+    }
+
+    .code-block .comment { color: var(--text-muted); }
+    .code-block .cmd { color: var(--green); }
+    .code-block .arg { color: var(--accent); }
+
+    /* ── Architecture ────────────────────────────────────── */
+    .arch-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .arch-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 28px 24px;
+    }
+
+    .arch-card .arch-label {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .08em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+
+    .arch-card h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+
+    .arch-card p {
+      font-size: 14px;
+      color: var(--text-dim);
+      line-height: 1.6;
+    }
+
+    .arch-card .tech-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+    }
+
+    .tech-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 10px;
+      border-radius: 5px;
+      background: rgba(0,122,255,.08);
+      color: var(--accent);
+      border: 1px solid rgba(0,122,255,.12);
+    }
+
+    /* ── Presets table ────────────────────────────────────── */
+    .presets-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .presets-table th {
+      text-align: left;
+      padding: 14px 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      background: var(--bg-code);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .presets-table td {
+      padding: 14px 20px;
+      font-size: 14px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .presets-table tr:last-child td { border-bottom: none; }
+
+    .presets-table td:first-child {
+      font-weight: 600;
+      color: #fff;
+    }
+
+    .preset-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .preset-badge.yes { background: rgba(52,199,89,.1); color: var(--green); }
+    .preset-badge.fork { background: rgba(0,122,255,.1); color: var(--accent); }
+
+    /* ── API table ────────────────────────────────────────── */
+    .api-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      margin-top: 24px;
+    }
+
+    .api-table th {
+      text-align: left;
+      padding: 12px 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      color: var(--text-muted);
+      background: var(--bg-code);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .api-table td {
+      padding: 12px 20px;
+      font-size: 13px;
+      color: var(--text-dim);
+      border-bottom: 1px solid var(--border-subtle);
+    }
+
+    .api-table tr:last-child td { border-bottom: none; }
+
+    .api-method {
+      font-family: var(--mono);
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 4px;
+      background: rgba(52,199,89,.1);
+      color: var(--green);
+    }
+
+    .api-method.post {
+      background: rgba(0,122,255,.1);
+      color: var(--accent);
+    }
+
+    .api-path {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+    }
+
+    /* ── Footer ──────────────────────────────────────────── */
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 48px 24px;
+      text-align: center;
+    }
+
+    .footer-inner {
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+
+    .footer-links {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      font-size: 13px;
+      color: var(--text-dim);
+    }
+    .footer-links a:hover { color: #fff; }
+
+    .footer-note {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ── Responsive ──────────────────────────────────────── */
+    @media (max-width: 900px) {
+      .features-grid,
+      .elements-grid,
+      .arch-grid {
+        grid-template-columns: 1fr;
+      }
+      .nav-links { display: none; }
+    }
+
+    @media (min-width: 901px) and (max-width: 1100px) {
+      .features-grid { grid-template-columns: repeat(2, 1fr); }
+      .elements-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* ── Divider ─────────────────────────────────────────── */
+    .divider {
+      height: 1px;
+      background: var(--border);
+      max-width: var(--max-w);
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+
+<div class="glow glow-1"></div>
+<div class="glow glow-2"></div>
+
+<!-- ── Nav ──────────────────────────────────────────────── -->
+<nav>
+  <a href="#" class="nav-brand">
+    <img src="assets/logo.svg" alt="" />
+    MTMR Designer
+  </a>
+  <ul class="nav-links">
+    <li><a href="#features">Features</a></li>
+    <li><a href="#elements">Elements</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#presets">Presets</a></li>
+    <li><a href="#get-started">Get Started</a></li>
+  </ul>
+  <a href="https://github.com/josetwentyfour/mtmr-designer" class="nav-cta">GitHub</a>
+</nav>
+
+<!-- ── Hero ─────────────────────────────────────────────── -->
+<header class="hero">
+  <div class="hero-badge">Visual Touch Bar Designer for macOS</div>
+  <h1>
+    Design your<br />
+    <span class="gradient">Touch Bar</span> visually
+  </h1>
+  <p>
+    Drag-and-drop designer for MTMR presets. Build, preview, and export custom macOS Touch Bar configurations without writing JSON by hand.
+  </p>
+  <div class="hero-actions">
+    <a href="#get-started" class="btn btn-primary">Get Started</a>
+    <a href="https://github.com/josetwentyfour/mtmr-designer" class="btn btn-secondary">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+      View on GitHub
+    </a>
+  </div>
+
+  <!-- Touch Bar Demo -->
+  <div class="touchbar-demo">
+    <div class="touchbar-frame">
+      <div class="tb-item active">esc</div>
+      <div class="tb-item">12:34</div>
+      <div class="tb-item">100%</div>
+      <div class="tb-item">CPU 12%</div>
+      <div class="tb-spacer"></div>
+      <div class="tb-slider">
+        <div class="tb-slider-knob"></div>
+      </div>
+      <div class="tb-item">DnD</div>
+      <div class="tb-item">Dark</div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Features ─────────────────────────────────────────── -->
+<section id="features">
+  <div class="section-inner">
+    <div class="section-label">Features</div>
+    <h2 class="section-title">Everything you need to design<br />the perfect Touch Bar</h2>
+    <p class="section-desc">
+      A complete visual editor with real-time preview, preset management, and direct MTMR integration.
+    </p>
+
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feature-icon">&#9881;</div>
+        <h3>Drag & Drop Editor</h3>
+        <p>Drag elements from the palette onto the Touch Bar canvas. Reorder with drag-and-drop. Right-click for context menus with edit, duplicate, and delete.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#9733;</div>
+        <h3>39 Element Types</h3>
+        <p>Buttons, media keys, native plugins (weather, CPU, battery, music, network), sliders, groups, and custom script buttons across 6 categories.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#9998;</div>
+        <h3>Property Editor</h3>
+        <p>Configure titles, images, colors, widths, alignment, and type-specific settings. Only appears when an element is selected to keep the workspace clean.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#9889;</div>
+        <h3>Action System</h3>
+        <p>Assign tap actions — single, double, triple, or long press — with HID keycodes, AppleScript, shell scripts, or URL triggers.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">{ }</div>
+        <h3>Live JSON Editor</h3>
+        <p>Syntax-highlighted JSON preview with inline editing, validation, import/export, and click-to-select synchronization with the canvas.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#9776;</div>
+        <h3>Preset Management</h3>
+        <p>5 built-in presets, 26 community presets, plus save and manage your own. Overwrite personal presets or fork any preset to create variations.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#8635;</div>
+        <h3>MTMR Integration</h3>
+        <p>Load and save directly to your MTMR configuration file. Changes are written to <code>~/Library/Application&nbsp;Support/MTMR/items.json</code>.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#8617;</div>
+        <h3>Undo & Redo</h3>
+        <p>Full history support with keyboard shortcuts. Your work auto-saves to localStorage across sessions.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">&#9654;</div>
+        <h3>Application Menu</h3>
+        <p>Traditional menu bar with File, Edit, Presets, and Help menus. Hover-to-switch, keyboard-friendly, and familiar to every desktop user.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── Elements ─────────────────────────────────────────── -->
+<section id="elements">
+  <div class="section-inner">
+    <div class="section-label">Elements</div>
+    <h2 class="section-title">39 element types across 6 categories</h2>
+    <p class="section-desc">
+      Every element type supported by MTMR, ready to drag onto your Touch Bar.
+    </p>
+
+    <div class="elements-grid">
+      <div class="element-group">
+        <h3>Buttons</h3>
+        <div class="count">9 elements</div>
+        <div class="element-tags">
+          <span class="element-tag">escape</span>
+          <span class="element-tag">exitTouchbar</span>
+          <span class="element-tag">brightnessUp</span>
+          <span class="element-tag">brightnessDown</span>
+          <span class="element-tag">illuminationUp</span>
+          <span class="element-tag">illuminationDown</span>
+          <span class="element-tag">volumeUp</span>
+          <span class="element-tag">volumeDown</span>
+          <span class="element-tag">mute</span>
+        </div>
+      </div>
+      <div class="element-group">
+        <h3>Native Plugins</h3>
+        <div class="count">15 elements</div>
+        <div class="element-tags">
+          <span class="element-tag">timeButton</span>
+          <span class="element-tag">battery</span>
+          <span class="element-tag">cpu</span>
+          <span class="element-tag">currency</span>
+          <span class="element-tag">weather</span>
+          <span class="element-tag">inputsource</span>
+          <span class="element-tag">music</span>
+          <span class="element-tag">dock</span>
+          <span class="element-tag">nightShift</span>
+          <span class="element-tag">dnd</span>
+          <span class="element-tag">darkMode</span>
+          <span class="element-tag">pomodoro</span>
+          <span class="element-tag">network</span>
+          <span class="element-tag">upnext</span>
+          <span class="element-tag">yandexWeather</span>
+        </div>
+      </div>
+      <div class="element-group">
+        <h3>Media Keys</h3>
+        <div class="count">3 elements</div>
+        <div class="element-tags">
+          <span class="element-tag">previous</span>
+          <span class="element-tag">play</span>
+          <span class="element-tag">next</span>
+        </div>
+      </div>
+      <div class="element-group">
+        <h3>Custom Elements</h3>
+        <div class="count">3 elements</div>
+        <div class="element-tags">
+          <span class="element-tag">staticButton</span>
+          <span class="element-tag">appleScriptTitledButton</span>
+          <span class="element-tag">shellScriptTitledButton</span>
+        </div>
+      </div>
+      <div class="element-group">
+        <h3>Sliders</h3>
+        <div class="count">2 elements</div>
+        <div class="element-tags">
+          <span class="element-tag">brightness</span>
+          <span class="element-tag">volume</span>
+        </div>
+      </div>
+      <div class="element-group">
+        <h3>Special</h3>
+        <div class="count">3 elements</div>
+        <div class="element-tags">
+          <span class="element-tag">group</span>
+          <span class="element-tag">close</span>
+          <span class="element-tag">swipe</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── Architecture ─────────────────────────────────────── -->
+<section id="architecture">
+  <div class="section-inner">
+    <div class="section-label">Architecture</div>
+    <h2 class="section-title">Modular, layered design</h2>
+    <p class="section-desc">
+      A React frontend backed by an Express server, with optional Electron and native Swift layers.
+    </p>
+
+    <div class="arch-grid">
+      <div class="arch-card">
+        <div class="arch-label">Frontend</div>
+        <h3>React SPA</h3>
+        <p>Three-panel layout with element palette, Touch Bar canvas + JSON editor, and contextual property editor. State managed with useReducer and auto-persisted to localStorage.</p>
+        <div class="tech-tags">
+          <span class="tech-tag">React 19</span>
+          <span class="tech-tag">Vite 7</span>
+          <span class="tech-tag">@dnd-kit</span>
+        </div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-label">Backend</div>
+        <h3>Express Server</h3>
+        <p>Integrated with Vite via vite-express. Exposes filesystem API routes for reading and writing the MTMR configuration file on disk.</p>
+        <div class="tech-tags">
+          <span class="tech-tag">Express</span>
+          <span class="tech-tag">vite-express</span>
+          <span class="tech-tag">comment-json</span>
+        </div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-label">Desktop</div>
+        <h3>Electron Wrapper</h3>
+        <p>Optional Electron shell that embeds the React app and renders items to the actual macOS Touch Bar using Electron's native TouchBar API.</p>
+        <div class="tech-tags">
+          <span class="tech-tag">Electron</span>
+          <span class="tech-tag">Native Addon</span>
+        </div>
+      </div>
+      <div class="arch-card">
+        <div class="arch-label">Native</div>
+        <h3>MTMR 2026</h3>
+        <p>Bundled fork of the MTMR Swift macOS app. Build with Xcode. Fully compatible with presets designed in MTMR Designer.</p>
+        <div class="tech-tags">
+          <span class="tech-tag">Swift</span>
+          <span class="tech-tag">Xcode</span>
+          <span class="tech-tag">Sparkle</span>
+        </div>
+      </div>
+    </div>
+
+    <table class="api-table">
+      <thead>
+        <tr>
+          <th>Method</th>
+          <th>Endpoint</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="api-method">GET</span></td>
+          <td><span class="api-path">/api/load-mtmr</span></td>
+          <td>Read MTMR config from disk</td>
+        </tr>
+        <tr>
+          <td><span class="api-method post">POST</span></td>
+          <td><span class="api-path">/api/save-mtmr</span></td>
+          <td>Write MTMR config to disk</td>
+        </tr>
+        <tr>
+          <td><span class="api-method">GET</span></td>
+          <td><span class="api-path">/api/config-path</span></td>
+          <td>Get MTMR config file path</td>
+        </tr>
+        <tr>
+          <td><span class="api-method">GET</span></td>
+          <td><span class="api-path">/api/health</span></td>
+          <td>Server health check</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── Presets ──────────────────────────────────────────── -->
+<section id="presets">
+  <div class="section-inner">
+    <div class="section-label">Presets</div>
+    <h2 class="section-title">Start from a preset, make it yours</h2>
+    <p class="section-desc">
+      Choose from built-in and community presets, or save your own. Personal presets can be overwritten in place; all others fork into your collection.
+    </p>
+
+    <table class="presets-table">
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Source</th>
+          <th>Count</th>
+          <th>Save</th>
+          <th>Edit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Built-in</td>
+          <td>Curated presets (Default, Media, Developer, Minimal, Productivity)</td>
+          <td>5</td>
+          <td><span class="preset-badge fork">Fork</span></td>
+          <td><span class="preset-badge fork">Fork</span></td>
+        </tr>
+        <tr>
+          <td>Community</td>
+          <td>MTMR-presets GitHub contributors</td>
+          <td>26</td>
+          <td><span class="preset-badge fork">Fork</span></td>
+          <td><span class="preset-badge fork">Fork</span></td>
+        </tr>
+        <tr>
+          <td>My Presets</td>
+          <td>Your saved configurations (localStorage)</td>
+          <td>&mdash;</td>
+          <td><span class="preset-badge yes">Overwrite</span></td>
+          <td><span class="preset-badge yes">Direct</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ── Get Started ──────────────────────────────────────── -->
+<section id="get-started">
+  <div class="section-inner">
+    <div class="section-label">Get Started</div>
+    <h2 class="section-title">Up and running in 60 seconds</h2>
+    <p class="section-desc">
+      Clone the repo, install dependencies, and start designing.
+    </p>
+
+    <div class="install-block">
+      <div class="code-block">
+        <span class="comment"># Clone the repository</span><br />
+        <span class="cmd">git clone</span> <span class="arg">https://github.com/josetwentyfour/mtmr-designer.git</span><br />
+        <span class="cmd">cd</span> mtmr-designer<br />
+        <br />
+        <span class="comment"># Install dependencies</span><br />
+        <span class="cmd">pnpm install</span><br />
+        <span class="cmd">cd</span> server && <span class="cmd">npm install</span> && <span class="cmd">cd</span> ..<br />
+        <br />
+        <span class="comment"># Start the development server</span><br />
+        <span class="cmd">pnpm run dev</span><br />
+        <br />
+        <span class="comment"># Open http://localhost:3001</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ──────────────────────────────────────────── -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-links">
+      <a href="https://github.com/josetwentyfour/mtmr-designer">GitHub</a>
+      <a href="https://github.com/Toxblh/MTMR">MTMR</a>
+      <a href="https://github.com/Toxblh/MTMR-presets">Community Presets</a>
+      <a href="https://github.com/josetwentyfour/mtmr-designer/issues">Issues</a>
+    </div>
+    <p class="footer-note">
+      Built by <a href="https://github.com/josetwentyfour">josetwentyfour</a> &middot;
+      Based on <a href="https://github.com/Toxblh/MTMR">MTMR</a> by <a href="https://github.com/Toxblh">Anton Palgunov</a> &middot;
+      MIT License
+    </p>
+  </div>
+</footer>
+
+</body>
+</html>
