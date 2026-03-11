@@ -60,12 +60,48 @@ export const presets = {
   },
   developer: {
     name: 'Developer',
-    description: 'Time, battery, CPU, dock, and dark mode toggle',
+    description: 'Time, battery, CPU, app launchers, and dark mode toggle',
     items: [
       { type: 'escape' },
       { type: 'timeButton', formatTemplate: 'HH:mm' },
       { type: 'battery' },
       { type: 'cpu' },
+      {
+        type: 'staticButton',
+        title: '⌨',
+        actions: [
+          {
+            trigger: 'tap',
+            action: 'shellScript',
+            executablePath: '/usr/bin/open',
+            shellArguments: ['-a', 'Terminal'],
+          },
+        ],
+      },
+      {
+        type: 'staticButton',
+        title: '{}',
+        actions: [
+          {
+            trigger: 'tap',
+            action: 'shellScript',
+            executablePath: '/usr/bin/open',
+            shellArguments: ['-a', 'Visual Studio Code'],
+          },
+        ],
+      },
+      {
+        type: 'staticButton',
+        title: '🌐',
+        actions: [
+          {
+            trigger: 'tap',
+            action: 'shellScript',
+            executablePath: '/usr/bin/open',
+            shellArguments: ['-a', 'Safari'],
+          },
+        ],
+      },
       { type: 'dock', autoResize: true },
       { type: 'darkMode' },
       { type: 'nightShift' },
