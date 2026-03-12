@@ -6,7 +6,6 @@ import {
 import { useDroppable } from '@dnd-kit/core';
 import { useApp } from '../../context/AppContext';
 import TouchBarItem from './TouchBarItem';
-import { getElementDefinition } from '../../data/elementDefinitions';
 import './TouchBar.css';
 
 export default function TouchBar() {
@@ -56,6 +55,11 @@ export default function TouchBar() {
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, [selectedItemId, removeItem, selectItem]);
 
+  // Group items by alignment to match MTMR's actual layout
+  const leftItems = items.filter(item => item.align === 'left');
+  const centerItems = items.filter(item => !item.align || item.align === 'center');
+  const rightItems = items.filter(item => item.align === 'right');
+
   return (
     <div className="touchbar-container" ref={containerRef}>
       <div className={`touchbar-frame ${isOver ? 'drag-over' : ''}`}>
@@ -67,15 +71,46 @@ export default function TouchBar() {
                   <span>Drag elements here or click from the palette</span>
                 </div>
               ) : (
-                items.map((item) => (
-                  <TouchBarItem
-                    key={item.id}
-                    item={item}
-                    isSelected={selectedItemId === item.id}
-                    onSelect={() => selectItem(item.id)}
-                    onContextMenu={(e) => handleContextMenu(e, item.id)}
-                  />
-                ))
+                <>
+                  {/* Left-aligned items */}
+                  <div className="touchbar-section touchbar-section-left">
+                    {leftItems.map((item) => (
+                      <TouchBarItem
+                        key={item.id}
+                        item={item}
+                        isSelected={selectedItemId === item.id}
+                        onSelect={() => selectItem(item.id)}
+                        onContextMenu={(e) => handleContextMenu(e, item.id)}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Center-aligned items */}
+                  <div className="touchbar-section touchbar-section-center">
+                    {centerItems.map((item) => (
+                      <TouchBarItem
+                        key={item.id}
+                        item={item}
+                        isSelected={selectedItemId === item.id}
+                        onSelect={() => selectItem(item.id)}
+                        onContextMenu={(e) => handleContextMenu(e, item.id)}
+                      />
+                    ))}
+                  </div>
+
+                  {/* Right-aligned items */}
+                  <div className="touchbar-section touchbar-section-right">
+                    {rightItems.map((item) => (
+                      <TouchBarItem
+                        key={item.id}
+                        item={item}
+                        isSelected={selectedItemId === item.id}
+                        onSelect={() => selectItem(item.id)}
+                        onContextMenu={(e) => handleContextMenu(e, item.id)}
+                      />
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           </SortableContext>
