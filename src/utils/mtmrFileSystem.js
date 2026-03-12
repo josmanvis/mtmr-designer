@@ -98,3 +98,49 @@ export async function isServerRunning() {
     return false;
   }
 }
+
+/**
+ * Check if MTMR is running
+ * @returns {Promise<{success: boolean, isRunning: boolean}>}
+ */
+export async function isMTMRRunning() {
+  try {
+    console.log('Checking if MTMR is running...');
+    const response = await fetch('/api/check-mtmr-running');
+    const result = await response.json();
+    console.log('MTMR running check result:', result.isRunning);
+    return result;
+  } catch (error) {
+    console.error('Error checking MTMR status:', error);
+    return {
+      success: false,
+      isRunning: false
+    };
+  }
+}
+
+/**
+ * Launch MTMR application (only if not already running)
+ * @returns {Promise<{success: boolean, error?: string}>}
+ */
+export async function launchMTMR() {
+  try {
+    console.log('Attempting to launch MTMR...');
+    const response = await fetch('/api/launch-mtmr', {
+      method: 'POST',
+    });
+    const result = await response.json();
+    if (result.success) {
+      console.log('MTMR launch request completed:', result.message);
+    } else {
+      console.error('Failed to launch MTMR:', result.error);
+    }
+    return result;
+  } catch (error) {
+    console.error('Error launching MTMR:', error);
+    return {
+      success: false,
+      error: `Failed to launch MTMR: ${error.message}`
+    };
+  }
+}

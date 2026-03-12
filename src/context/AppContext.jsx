@@ -10,6 +10,7 @@ const initialState = {
   activePreset: null, // Track which preset is currently loaded
   myPresets: [], // User's saved presets
   isDirty: false, // Track unsaved changes since last load/save
+  mtmrItems: null, // Track what's currently in MTMR
   history: {
     past: [],
     future: [],
@@ -311,6 +312,7 @@ function appReducer(state, action) {
       return {
         ...state,
         items: action.payload,
+        mtmrItems: JSON.parse(JSON.stringify(action.payload)), // Deep copy for comparison
         selectedItemId: null,
         activePreset: null,
         isDirty: false,
@@ -559,12 +561,26 @@ export function AppProvider({ children }) {
       const result = await saveToMTMRFile(jsonContent);
       if (result.success) {
         dispatch({ type: ActionTypes.MARK_CLEAN });
+        // Update mtmrItems after successful save
+        dispatch({
+          type: ActionTypes.LOAD_FROM_MTM,
+          payload: JSON.parse(JSON.stringify(state.items))
+        });
       }
       return result;
     } catch (error) {
       return { success: false, error: error.message };
     }
   }, [state.items]);
+
+  // Helper function to compare items for deep equality
+  const itemsEqual = useCallback((a, b) => {
+    return JSON.stringify(a) === JSON.stringify(b);
+  }, []);
+
+  // Determine if save button should be enabled
+  const shouldEnableSave = state.isDirty ||
+    (state.mtmrItems !== null && !itemsEqual(state.items, state.mtmrItems));
 
   const value = {
     // State
@@ -575,6 +591,7 @@ export function AppProvider({ children }) {
     activePreset: state.activePreset,
     myPresets: state.myPresets,
     isDirty: state.isDirty,
+    shouldEnableSave,
 
     // Actions
     addItem,
