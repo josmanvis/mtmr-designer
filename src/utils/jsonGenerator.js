@@ -26,9 +26,9 @@ const generateItemJSON = (item) => {
     result.width = item.width;
   }
 
-  if (item.align && item.align !== 'center') {
-    result.align = item.align;
-  }
+  // Always include align property - MTMR needs this for positioning
+  // Default to 'center' if not specified
+  result.align = item.align || 'center';
 
   if (item.bordered !== undefined && item.bordered !== true) {
     result.bordered = item.bordered;

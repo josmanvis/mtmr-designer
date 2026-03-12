@@ -4,6 +4,7 @@ const path = require('path');
 const os = require('os');
 const commentJson = require('comment-json');
 const ViteExpress = require('vite-express');
+const { execFile } = require('child_process');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -148,6 +149,54 @@ app.get('/api/config-path', (req, res) => {
     success: true,
     path: getMTMRConfigPath(),
     message: 'MTMR configuration file path'
+  });
+});
+
+// GET /api/check-mtmr-running - Check if MTMR is running
+app.get('/api/check-mtmr-running', (req, res) => {
+  console.log('API: Checking if MTMR is running...');
+  execFile('pgrep', ['-f', 'MTMR'], (error, stdout) => {
+    const isRunning = !error && stdout.trim().length > 0;
+    console.log('API: MTMR running check result:', isRunning);
+    res.json({
+      success: true,
+      isRunning
+    });
+  });
+});
+
+// POST /api/launch-mtmr - Launch MTMR application (only if not running)
+app.post('/api/launch-mtmr', (req, res) => {
+  console.log('API: Launch MTMR request received...');
+
+  // First check if MTMR is already running
+  execFile('pgrep', ['-f', 'MTMR'], (checkError, stdout) => {
+    const isAlreadyRunning = !checkError && stdout.trim().length > 0;
+
+    if (isAlreadyRunning) {
+      console.log('API: MTMR is already running, skipping launch');
+      return res.json({
+        success: true,
+        message: 'MTMR is already running'
+      });
+    }
+
+    // MTMR is not running, launch it
+    console.log('API: Launching MTMR...');
+    execFile('open', ['-a', 'MTMR'], (launchError) => {
+      if (launchError) {
+        console.error('API: Failed to launch MTMR:', launchError);
+        return res.status(500).json({
+          success: false,
+          error: `Failed to launch MTMR: ${launchError.message}`
+        });
+      }
+      console.log('API: MTMR launched successfully');
+      res.json({
+        success: true,
+        message: 'MTMR application launched'
+      });
+    });
   });
 });
 

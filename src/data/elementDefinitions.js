@@ -122,9 +122,34 @@ export const elementTypes = {
       width: 36,
     },
   },
+  delete: {
+    type: 'delete',
+    category: 'buttons',
+    label: 'Delete',
+    icon: '⌦',
+    defaultTitle: 'del',
+    defaultProps: {},
+  },
+  sleep: {
+    type: 'sleep',
+    category: 'buttons',
+    label: 'Sleep',
+    icon: '☕️',
+    defaultTitle: '☕️',
+    defaultProps: {},
+  },
+  displaySleep: {
+    type: 'displaySleep',
+    category: 'buttons',
+    label: 'Display Sleep',
+    icon: '💤',
+    defaultTitle: '💤',
+    defaultProps: {},
+  },
 
   // Native Plugins
   timeButton: {
+    key: 'timeButton',
     type: 'timeButton',
     category: 'plugins',
     label: 'Time Button',
@@ -132,6 +157,20 @@ export const elementTypes = {
     defaultTitle: '',
     defaultProps: {
       formatTemplate: 'HH:mm',
+      locale: 'en_US',
+      timeZone: '',
+    },
+    properties: ['formatTemplate', 'locale', 'timeZone'],
+  },
+  dateButton: {
+    key: 'dateButton',
+    type: 'timeButton',
+    category: 'plugins',
+    label: 'Date Button',
+    icon: '📅',
+    defaultTitle: '',
+    defaultProps: {
+      formatTemplate: 'MMM d',
       locale: 'en_US',
       timeZone: '',
     },
@@ -216,11 +255,11 @@ export const elementTypes = {
     type: 'dock',
     category: 'plugins',
     label: 'Dock',
-    icon: '📱',
+    icon: '🖥',
     defaultTitle: '',
     defaultProps: {
-      filter: '',
-      autoResize: false,
+      width: 200,
+      autoResize: true,
     },
     properties: ['filter', 'autoResize'],
   },
@@ -357,6 +396,38 @@ export const elementTypes = {
         inline: '',
       },
       refreshInterval: 60,
+    },
+    properties: ['source', 'refreshInterval'],
+    supportsActions: true,
+  },
+  memoryButton: {
+    key: 'memoryButton',
+    type: 'shellScriptTitledButton',
+    category: 'custom',
+    label: 'Memory',
+    icon: '🧠',
+    defaultTitle: '',
+    defaultProps: {
+      source: {
+        inline: 'memory_pressure | grep "System-wide memory free percentage" | sed "s/System-wide memory free percentage: //" | sed "s/%//" | xargs -I {} bash -c \'free={} && used=$((100-free)) && echo "🧠 ${used}%"\'',
+      },
+      refreshInterval: 5,
+    },
+    properties: ['source', 'refreshInterval'],
+    supportsActions: true,
+  },
+  activeAppButton: {
+    key: 'activeAppButton',
+    type: 'appleScriptTitledButton',
+    category: 'custom',
+    label: 'Active App',
+    icon: '📱',
+    defaultTitle: '',
+    defaultProps: {
+      source: {
+        inline: 'tell application "System Events" to get name of first process whose frontmost is true',
+      },
+      refreshInterval: 1,
     },
     properties: ['source', 'refreshInterval'],
     supportsActions: true,
@@ -516,26 +587,42 @@ export const getElementsByCategory = (category) => {
 
 // Get element definition by type
 export const getElementDefinition = (type) => {
-  return elementTypes[type] || null;
+  // First try direct lookup by key (e.g., elementTypes['cpu'])
+  if (elementTypes[type]) {
+    return elementTypes[type];
+  }
+  // If not found, search by type property (for items loaded from MTMR)
+  return Object.values(elementTypes).find((el) => el.type === type) || null;
+};
+
+// Get element definition by key (for palette items with unique keys like dateButton)
+export const getElementDefinitionByKey = (key) => {
+  return Object.values(elementTypes).find((el) => el.key === key) || null;
 };
 
 // Create a new element with default properties
-export const createElement = (type, overrides = {}) => {
-  const definition = elementTypes[type];
+export const createElement = (typeOrKey, overrides = {}) => {
+  // First try to find by key (for palette items like dateButton)
+  let definition = getElementDefinitionByKey(typeOrKey);
+  
+  // If not found by key, try by type
+  if (!definition) {
+    definition = elementTypes[typeOrKey];
+  }
   
   // For unknown types (e.g., from community presets), create a generic element
   // that preserves all original properties
   if (!definition) {
     return {
       id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      type,
+      type: typeOrKey,
       ...overrides,
     };
   }
 
   return {
     id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    type,
+    type: definition.type,
     ...definition.defaultProps,
     ...overrides,
   };
