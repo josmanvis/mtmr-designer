@@ -1,0 +1,82 @@
+name: Build MTMR Designer
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - name: Install web dependencies
+        run: pnpm install
+
+      - name: Build web app
+        run: pnpm run build
+
+      - name: Bundle web app into Xcode project
+        run: |
+          mkdir -p mtmr-src/MTMR/WebApp
+          cp -r dist/* mtmr-src/MTMR/WebApp/
+          echo "Bundled $(find mtmr-src/MTMR/WebApp -type f | wc -l) files into WebApp"
+
+      - name: Select Xcode
+        run: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer
+
+      - name: Build MTMR 2026
+        run: |
+          cd mtmr-src
+          xcodebuild \
+            -scheme MTMR \
+            -configuration Release \
+            -derivedDataPath build \
+            -archivePath build/MTMR.xcarchive \
+            archive \
+            CODE_SIGN_IDENTITY="-" \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            | tail -20
+
+      - name: Export app from archive
+        run: |
+          cd mtmr-src
+          mkdir -p Release
+          cp -r "build/MTMR.xcarchive/Products/Applications/MTMR 2026.app" Release/
+          echo "App size: $(du -sh 'Release/MTMR 2026.app' | cut -f1)"
+
+      - name: Create ZIP
+        run: |
+          cd mtmr-src/Release
+          zip -r -y "MTMR-Designer.zip" "MTMR 2026.app"
+          echo "ZIP size: $(du -sh MTMR-Designer.zip | cut -f1)"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: MTMR-Designer
+          path: mtmr-src/Release/MTMR-Designer.zip
+
+      - name: Create Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: mtmr-src/Release/MTMR-Designer.zip
+          generate_release_notes: true
