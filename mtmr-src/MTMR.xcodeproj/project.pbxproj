@@ -46,6 +46,7 @@
 		B059D624205E04F3006E6B86 /* CustomButtonTouchBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B059D623205E04F3006E6B86 /* CustomButtonTouchBarItem.swift */; };
 		B059D62D205F11E8006E6B86 /* DFRFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B059D62C205F11E8006E6B86 /* DFRFoundation.framework */; };
 		B0679BC1215AE73F000FC6B4 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = B0679BC0215AE73F000FC6B4 /* dsa_pub.pem */; };
+		AA0000012026031200000001 /* DesignerWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000002026031200000001 /* DesignerWindowController.swift */; };
 		B08126EF217BD0B900A98970 /* PomodoroBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08126EE217BD0B900A98970 /* PomodoroBarItem.swift */; };
 		B08126F1217BE19000A98970 /* WidgetProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08126F0217BE19000A98970 /* WidgetProtocol.swift */; };
 		B08173272135F02B005D4908 /* NightShiftBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08173262135F02B005D4908 /* NightShiftBarItem.swift */; };
@@ -134,6 +135,7 @@
 		B059D62A205F0E7D006E6B86 /* TouchBarPrivateApi-Bridging.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "TouchBarPrivateApi-Bridging.h"; sourceTree = "<group>"; };
 		B059D62C205F11E8006E6B86 /* DFRFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DFRFoundation.framework; path = ../../../../../System/Library/PrivateFrameworks/DFRFoundation.framework; sourceTree = "<group>"; };
 		B0679BC0215AE73F000FC6B4 /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
+		AA0000002026031200000001 /* DesignerWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignerWindowController.swift; sourceTree = "<group>"; };
 		B08126EE217BD0B900A98970 /* PomodoroBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroBarItem.swift; sourceTree = "<group>"; };
 		B08126F0217BE19000A98970 /* WidgetProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetProtocol.swift; sourceTree = "<group>"; };
 		B08173262135F02B005D4908 /* NightShiftBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightShiftBarItem.swift; sourceTree = "<group>"; };
@@ -240,6 +242,7 @@
 				B082B25C205C7D8000BC04DC /* MTMR.entitlements */,
 				36C2ECDF207CB1B0003CDA33 /* defaultPreset.json */,
 				B082B252205C7D8000BC04DC /* AppDelegate.swift */,
+				AA0000002026031200000001 /* DesignerWindowController.swift */,
 				B0A7E9A9205D6AA400EEF070 /* KeyPress.swift */,
 				36FEF871235A1CFC00A0ABCE /* AppSettings.swift */,
 				B059D623205E04F3006E6B86 /* CustomButtonTouchBarItem.swift */,
@@ -490,6 +493,7 @@
 				6042B6A72083E03A00C525C8 /* AppScrubberTouchBarItem.swift in Sources */,
 				BAF5AB5924317CAF00B04904 /* SwipeItem.swift in Sources */,
 				B082B253205C7D8000BC04DC /* AppDelegate.swift in Sources */,
+				AA0000012026031200000001 /* DesignerWindowController.swift in Sources */,
 				B0F54A7A2295AC7D00B4C509 /* DarkModeBarItem.swift in Sources */,
 				B08126EF217BD0B900A98970 /* PomodoroBarItem.swift in Sources */,
 				4CF222ED26CC43D50025BDA7 /* CPU.swift in Sources */,
