@@ -17,25 +17,49 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private var fileSystemSource: DispatchSourceFileSystemObject?
 
     func applicationDidFinishLaunching(_: Notification) {
-        // Configure Sparkle
-        SUUpdater.shared().automaticallyDownloadsUpdates = false
-        SUUpdater.shared().automaticallyChecksForUpdates = true
-        SUUpdater.shared().checkForUpdatesInBackground()
+        NSLog("MTMR 2026: App Starting Up...")
 
-        AXIsProcessTrustedWithOptions([kAXTrustedCheckOptionPrompt.takeRetainedValue() as NSString: true] as NSDictionary)
-
-        TouchBarController.shared.setupControlStripPresence()
-
+        // 1. Status bar icon FIRST — this must succeed before anything risky
+        NSLog("MTMR 2026: Creating Status Bar Item...")
         if let button = statusItem.button {
             button.image = #imageLiteral(resourceName: "StatusImage")
+            NSLog("MTMR 2026: Status Item Button Image Set.")
+        } else {
+            NSLog("MTMR 2026: ERROR — Status Item Button is nil!")
         }
         createMenu()
+        NSLog("MTMR 2026: Menu Created.")
 
+        // 2. Accessibility check
+        NSLog("MTMR 2026: Checking Accessibility Permissions...")
+        let options = [kAXTrustedCheckOptionPrompt.takeRetainedValue() as NSString: true] as NSDictionary
+        let accessibilityEnabled = AXIsProcessTrustedWithOptions(options)
+        NSLog("MTMR 2026: Accessibility Enabled: %@", accessibilityEnabled ? "true" : "false")
+
+        // 3. Sparkle (deferred — old framework may crash on macOS 26)
+        DispatchQueue.main.async {
+            NSLog("MTMR 2026: Configuring Sparkle...")
+            SUUpdater.shared().automaticallyDownloadsUpdates = false
+            SUUpdater.shared().automaticallyChecksForUpdates = true
+            SUUpdater.shared().checkForUpdatesInBackground()
+            NSLog("MTMR 2026: Sparkle configured.")
+        }
+
+        // 4. Touch Bar setup (deferred — uses private APIs that may fail)
+        DispatchQueue.main.async {
+            NSLog("MTMR 2026: Setting up Touch Bar Control Strip...")
+            TouchBarController.shared.setupControlStripPresence()
+            NSLog("MTMR 2026: Control Strip Presence Setup Complete.")
+        }
+
+        // 5. File watching and notifications
         reloadOnDefaultConfigChanged()
+        NSLog("MTMR 2026: Default Config Watcher Started.")
 
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(updateIsBlockedApp), name: NSWorkspace.didLaunchApplicationNotification, object: nil)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(updateIsBlockedApp), name: NSWorkspace.didTerminateApplicationNotification, object: nil)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(updateIsBlockedApp), name: NSWorkspace.didActivateApplicationNotification, object: nil)
+        NSLog("MTMR 2026: Startup complete.")
     }
 
     func applicationWillTerminate(_: Notification) {}

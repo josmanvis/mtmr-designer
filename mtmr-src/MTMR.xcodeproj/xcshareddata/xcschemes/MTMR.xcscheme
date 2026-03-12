@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1010"
+   LastUpgradeVersion = "2630"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -15,7 +15,7 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "B082B24E205C7D8000BC04DC"
-               BuildableName = "MTMR.app"
+               BuildableName = "MTMR 2026.app"
                BlueprintName = "MTMR"
                ReferencedContainer = "container:MTMR.xcodeproj">
             </BuildableReference>
@@ -27,6 +27,15 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       shouldUseLaunchSchemeArgsEnv = "YES">
+      <MacroExpansion>
+         <BuildableReference
+            BuildableIdentifier = "primary"
+            BlueprintIdentifier = "B082B24E205C7D8000BC04DC"
+            BuildableName = "MTMR 2026.app"
+            BlueprintName = "MTMR"
+            ReferencedContainer = "container:MTMR.xcodeproj">
+         </BuildableReference>
+      </MacroExpansion>
       <Testables>
          <TestableReference
             skipped = "NO">
@@ -39,17 +48,6 @@
             </BuildableReference>
          </TestableReference>
       </Testables>
-      <MacroExpansion>
-         <BuildableReference
-            BuildableIdentifier = "primary"
-            BlueprintIdentifier = "B082B24E205C7D8000BC04DC"
-            BuildableName = "MTMR.app"
-            BlueprintName = "MTMR"
-            ReferencedContainer = "container:MTMR.xcodeproj">
-         </BuildableReference>
-      </MacroExpansion>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -66,13 +64,11 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B082B24E205C7D8000BC04DC"
-            BuildableName = "MTMR.app"
+            BuildableName = "MTMR 2026.app"
             BlueprintName = "MTMR"
             ReferencedContainer = "container:MTMR.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -85,7 +81,7 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "B082B24E205C7D8000BC04DC"
-            BuildableName = "MTMR.app"
+            BuildableName = "MTMR 2026.app"
             BlueprintName = "MTMR"
             ReferencedContainer = "container:MTMR.xcodeproj">
          </BuildableReference>
