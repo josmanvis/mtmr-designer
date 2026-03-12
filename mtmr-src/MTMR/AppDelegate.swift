@@ -59,6 +59,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(updateIsBlockedApp), name: NSWorkspace.didLaunchApplicationNotification, object: nil)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(updateIsBlockedApp), name: NSWorkspace.didTerminateApplicationNotification, object: nil)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(updateIsBlockedApp), name: NSWorkspace.didActivateApplicationNotification, object: nil)
+        // 6. Auto-open the Designer window on launch
+        DispatchQueue.main.async {
+            NSLog("MTMR 2026: Opening Designer window...")
+            DesignerWindowController.shared.showWindow()
+        }
+
         NSLog("MTMR 2026: Startup complete.")
     }
 

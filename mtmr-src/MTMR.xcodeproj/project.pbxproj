@@ -47,6 +47,7 @@
 		B059D62D205F11E8006E6B86 /* DFRFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B059D62C205F11E8006E6B86 /* DFRFoundation.framework */; };
 		B0679BC1215AE73F000FC6B4 /* dsa_pub.pem in Resources */ = {isa = PBXBuildFile; fileRef = B0679BC0215AE73F000FC6B4 /* dsa_pub.pem */; };
 		AA0000012026031200000001 /* DesignerWindowController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000002026031200000001 /* DesignerWindowController.swift */; };
+		AA0000032026031200000002 /* AppSchemeHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000022026031200000002 /* AppSchemeHandler.swift */; };
 		B08126EF217BD0B900A98970 /* PomodoroBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08126EE217BD0B900A98970 /* PomodoroBarItem.swift */; };
 		B08126F1217BE19000A98970 /* WidgetProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08126F0217BE19000A98970 /* WidgetProtocol.swift */; };
 		B08173272135F02B005D4908 /* NightShiftBarItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B08173262135F02B005D4908 /* NightShiftBarItem.swift */; };
@@ -136,6 +137,7 @@
 		B059D62C205F11E8006E6B86 /* DFRFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = DFRFoundation.framework; path = ../../../../../System/Library/PrivateFrameworks/DFRFoundation.framework; sourceTree = "<group>"; };
 		B0679BC0215AE73F000FC6B4 /* dsa_pub.pem */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = dsa_pub.pem; sourceTree = "<group>"; };
 		AA0000002026031200000001 /* DesignerWindowController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DesignerWindowController.swift; sourceTree = "<group>"; };
+		AA0000022026031200000002 /* AppSchemeHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppSchemeHandler.swift; sourceTree = "<group>"; };
 		B08126EE217BD0B900A98970 /* PomodoroBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PomodoroBarItem.swift; sourceTree = "<group>"; };
 		B08126F0217BE19000A98970 /* WidgetProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WidgetProtocol.swift; sourceTree = "<group>"; };
 		B08173262135F02B005D4908 /* NightShiftBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NightShiftBarItem.swift; sourceTree = "<group>"; };
@@ -243,6 +245,7 @@
 				36C2ECDF207CB1B0003CDA33 /* defaultPreset.json */,
 				B082B252205C7D8000BC04DC /* AppDelegate.swift */,
 				AA0000002026031200000001 /* DesignerWindowController.swift */,
+				AA0000022026031200000002 /* AppSchemeHandler.swift */,
 				B0A7E9A9205D6AA400EEF070 /* KeyPress.swift */,
 				36FEF871235A1CFC00A0ABCE /* AppSettings.swift */,
 				B059D623205E04F3006E6B86 /* CustomButtonTouchBarItem.swift */,
@@ -350,6 +353,7 @@
 				B082B24D205C7D8000BC04DC /* Resources */,
 				B00D181E2152F507000806F4 /* CopyFiles */,
 				B0679BBF215AE085000FC6B4 /* ShellScript */,
+				AA0000042026031200000003 /* Bundle Web App */,
 			);
 			buildRules = (
 			);
@@ -474,6 +478,24 @@
 			shellPath = /bin/sh;
 			shellScript = "#!/bin/sh\nexit 0";
 		};
+		AA0000042026031200000003 /* Bundle Web App */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Bundle Web App";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Copy bundled web app into app bundle if it exists\nWEBAPP_SRC=\"${SRCROOT}/MTMR/WebApp\"\nWEBAPP_DST=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/WebApp\"\n\nif [ -d \"$WEBAPP_SRC\" ]; then\n    mkdir -p \"$WEBAPP_DST\"\n    cp -r \"$WEBAPP_SRC/\"* \"$WEBAPP_DST/\"\n    echo \"Copied bundled web app from $WEBAPP_SRC\"\nelse\n    echo \"No bundled web app found at $WEBAPP_SRC (development mode)\"\nfi\n";
+		};
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
@@ -494,6 +516,7 @@
 				BAF5AB5924317CAF00B04904 /* SwipeItem.swift in Sources */,
 				B082B253205C7D8000BC04DC /* AppDelegate.swift in Sources */,
 				AA0000012026031200000001 /* DesignerWindowController.swift in Sources */,
+				AA0000032026031200000002 /* AppSchemeHandler.swift in Sources */,
 				B0F54A7A2295AC7D00B4C509 /* DarkModeBarItem.swift in Sources */,
 				B08126EF217BD0B900A98970 /* PomodoroBarItem.swift in Sources */,
 				4CF222ED26CC43D50025BDA7 /* CPU.swift in Sources */,
