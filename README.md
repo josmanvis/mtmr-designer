@@ -29,6 +29,10 @@
 
 ---
 
+<p align="center">
+  <img src="docs/assets/preview.png" alt="MTMR Designer Preview" width="100%" />
+</p>
+
 ## Features
 
 **Visual Editor** — See your Touch Bar layout in real-time. Drag elements from the palette, reorder with drag-and-drop, right-click for context menus.
