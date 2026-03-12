@@ -12,7 +12,6 @@ import {
   arrayMove,
   SortableContext,
   sortableKeyboardCoordinates,
-  horizontalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { AppProvider, useApp } from './context/AppContext';
 import TouchBar from './components/TouchBar/TouchBar';
@@ -27,8 +26,8 @@ import './App.css';
 function AppContent() {
   const {
     addItem, selectItem, items, reorderItems, selectedItemId, removeItem, loadItems, clearAll,
-    activePreset, setActivePreset, clearActivePreset, myPresets, saveMyPreset, overwriteMyPreset, deleteMyPreset,
-    loadFromMTMR, saveToMTMR, isDirty
+    activePreset, setActivePreset, myPresets, saveMyPreset, overwriteMyPreset, deleteMyPreset,
+    loadFromMTMR, saveToMTMR, isDirty, shouldEnableSave, autoLoad, toggleAutoLoad
   } = useApp();
   const [activeId, setActiveId] = useState(null);
   const [activeType, setActiveType] = useState(null);
@@ -39,6 +38,7 @@ function AppContent() {
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [presetName, setPresetName] = useState('');
   const [errorToast, setErrorToast] = useState(null);
+  const [showJsonSection, setShowJsonSection] = useState(true);
   const presetList = getPresetList();
 
   const toggleMenu = (menu) => {
@@ -129,6 +129,24 @@ function AppContent() {
   const handleDeleteMyPreset = (e, key) => {
     e.stopPropagation();
     deleteMyPreset(key);
+  };
+
+  const handleRestartMTMR = async () => {
+    closeMenus();
+    try {
+      const response = await fetch('/api/launch-mtmr', { method: 'POST' });
+      const result = await response.json();
+      if (result.success) {
+        setErrorToast('✅ MTMR launched successfully');
+        setTimeout(() => setErrorToast(null), 3000);
+      } else {
+        setErrorToast(`❌ Failed to launch MTMR: ${result.error}`);
+        setTimeout(() => setErrorToast(null), 5000);
+      }
+    } catch (error) {
+      setErrorToast(`❌ Error launching MTMR: ${error.message}`);
+      setTimeout(() => setErrorToast(null), 5000);
+    }
   };
 
   const handleLoadFromMTMR = async () => {
@@ -226,6 +244,7 @@ function AppContent() {
             {/* File Menu */}
             <div className="menu-wrapper">
               <button
+                type="button"
                 className={`menu-trigger ${openMenu === 'file' ? 'open' : ''}`}
                 onClick={() => toggleMenu('file')}
                 onMouseEnter={() => handleMenuHover('file')}
@@ -234,21 +253,22 @@ function AppContent() {
               </button>
               {openMenu === 'file' && (
                 <div className="menu-dropdown">
-                  <button className="menu-dropdown-item" onClick={() => { clearAll(); closeMenus(); }}>
+                  <button type="button" className="menu-dropdown-item" onClick={() => { clearAll(); closeMenus(); }}>
                     New
                   </button>
                   <div className="menu-separator" />
-                  <button className="menu-dropdown-item" onClick={handleLoadFromMTMR}>
+                  <button type="button" className="menu-dropdown-item" onClick={handleLoadFromMTMR}>
                     Load from MTMR
                   </button>
-                  <button className="menu-dropdown-item" onClick={handleUpdateMTMR} disabled={!isDirty}>
+                  <button type="button" className="menu-dropdown-item" onClick={handleUpdateMTMR} disabled={!shouldEnableSave}>
                     Save to MTMR
                   </button>
                   <div className="menu-separator" />
-                  <button className="menu-dropdown-item" onClick={handleSave} disabled={!isDirty}>
+                  <button type="button" className="menu-dropdown-item" onClick={handleSave} disabled={!isDirty}>
                     Save
                   </button>
                   <button
+                    type="button"
                     className="menu-dropdown-item"
                     onClick={() => { setShowSaveModal(true); closeMenus(); }}
                   >
@@ -261,6 +281,7 @@ function AppContent() {
             {/* Edit Menu */}
             <div className="menu-wrapper">
               <button
+                type="button"
                 className={`menu-trigger ${openMenu === 'edit' ? 'open' : ''}`}
                 onClick={() => toggleMenu('edit')}
                 onMouseEnter={() => handleMenuHover('edit')}
@@ -270,6 +291,7 @@ function AppContent() {
               {openMenu === 'edit' && (
                 <div className="menu-dropdown">
                   <button
+                    type="button"
                     className="menu-dropdown-item"
                     onClick={() => { if (selectedItemId) removeItem(selectedItemId); closeMenus(); }}
                     disabled={!selectedItemId}
@@ -277,7 +299,7 @@ function AppContent() {
                     Delete
                   </button>
                   <div className="menu-separator" />
-                  <button className="menu-dropdown-item" onClick={() => { clearAll(); closeMenus(); }}>
+                  <button type="button" className="menu-dropdown-item" onClick={() => { clearAll(); closeMenus(); }}>
                     Clear All
                   </button>
                 </div>
@@ -287,6 +309,7 @@ function AppContent() {
             {/* Presets Menu */}
             <div className="menu-wrapper">
               <button
+                type="button"
                 className={`menu-trigger ${openMenu === 'presets' ? 'open' : ''}`}
                 onClick={() => toggleMenu('presets')}
                 onMouseEnter={() => handleMenuHover('presets')}
@@ -319,6 +342,7 @@ function AppContent() {
                                   {preset.name}
                                 </span>
                                 <button
+                                  type="button"
                                   className="menu-delete-btn"
                                   onClick={(e) => handleDeleteMyPreset(e, preset.key)}
                                   title="Delete preset"
@@ -336,6 +360,7 @@ function AppContent() {
 
                   {presetList.map((preset) => (
                     <button
+                      type="button"
                       key={preset.key}
                       className={`menu-dropdown-item ${activePreset?.key === preset.key && activePreset?.type === 'built-in' ? 'active' : ''}`}
                       onClick={() => handlePresetSelect(preset.key)}
@@ -360,6 +385,7 @@ function AppContent() {
                       <div className="menu-submenu">
                         {communityPresets.map((name) => (
                           <button
+                            type="button"
                             key={name}
                             className={`menu-dropdown-item ${activePreset?.key === name && activePreset?.type === 'community' ? 'active' : ''}`}
                             onClick={() => handleCommunityPresetSelect(name)}
@@ -382,9 +408,36 @@ function AppContent() {
               )}
             </div>
 
+            {/* View Menu */}
+            <div className="menu-wrapper">
+              <button
+                type="button"
+                className={`menu-trigger ${openMenu === 'view' ? 'open' : ''}`}
+                onClick={() => toggleMenu('view')}
+                onMouseEnter={() => handleMenuHover('view')}
+              >
+                View
+              </button>
+              {openMenu === 'view' && (
+                <div className="menu-dropdown">
+                  <button
+                    type="button"
+                    className="menu-dropdown-item"
+                    onClick={() => {
+                      setShowJsonSection(!showJsonSection);
+                      closeMenus();
+                    }}
+                  >
+                    {showJsonSection ? '✓' : ''} {showJsonSection ? 'Hide' : 'Show'} JSON
+                  </button>
+                </div>
+              )}
+            </div>
+
             {/* Help Menu */}
             <div className="menu-wrapper">
               <button
+                type="button"
                 className={`menu-trigger ${openMenu === 'help' ? 'open' : ''}`}
                 onClick={() => toggleMenu('help')}
                 onMouseEnter={() => handleMenuHover('help')}
@@ -393,6 +446,14 @@ function AppContent() {
               </button>
               {openMenu === 'help' && (
                 <div className="menu-dropdown">
+                  <button
+                    type="button"
+                    className="menu-dropdown-item"
+                    onClick={handleRestartMTMR}
+                  >
+                    Restart MTMR
+                  </button>
+                  <div className="menu-separator" />
                   <a
                     className="menu-dropdown-item"
                     href="https://github.com/Toxblh/MTMR"
@@ -406,9 +467,21 @@ function AppContent() {
               )}
             </div>
           </div>
-          {activePreset && (
-            <span className="menubar-status">{activePreset.name}</span>
-          )}
+          <div className="menubar-right">
+            {activePreset && (
+              <span className="menubar-status">{activePreset.name}</span>
+            )}
+            <label className="ios-toggle-label">
+              Auto Load
+              <input
+                type="checkbox"
+                className="ios-toggle-input"
+                checked={autoLoad}
+                onChange={toggleAutoLoad}
+              />
+              <span className="ios-toggle-switch"></span>
+            </label>
+          </div>
         </header>
 
         <main className="app-main">
@@ -417,10 +490,10 @@ function AppContent() {
           </aside>
 
           <section className="content-center">
-            <div className="touchbar-wrapper">
+            <div className={`touchbar-wrapper ${!showJsonSection ? 'fullscreen' : ''}`}>
               <TouchBar />
             </div>
-            <JsonOutput />
+            {showJsonSection && <JsonOutput />}
           </section>
 
           {selectedItemId && (
@@ -459,8 +532,18 @@ function AppContent() {
       )}
 
       {showSaveModal && (
-        <div className="modal-backdrop" onClick={() => setShowSaveModal(false)}>
-          <div className="modal" onClick={(e) => e.stopPropagation()}>
+        <button
+          className="modal-backdrop"
+          onClick={() => setShowSaveModal(false)}
+          onKeyDown={(e) => e.key === 'Escape' && setShowSaveModal(false)}
+          type="button"
+        >
+          <div
+            className="modal"
+            onClick={(e) => e.stopPropagation()}
+            onKeyDown={(e) => e.stopPropagation()}
+            role="dialog"
+          >
             <h3 className="modal-title">Save as Preset</h3>
             <input
               type="text"
@@ -469,18 +552,17 @@ function AppContent() {
               value={presetName}
               onChange={(e) => setPresetName(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSavePreset()}
-              autoFocus
             />
             <div className="modal-actions">
-              <button className="modal-btn modal-btn-cancel" onClick={() => setShowSaveModal(false)}>
+              <button type="button" className="modal-btn modal-btn-cancel" onClick={() => setShowSaveModal(false)}>
                 Cancel
               </button>
-              <button className="modal-btn modal-btn-save" onClick={handleSavePreset} disabled={!presetName.trim()}>
+              <button type="button" className="modal-btn modal-btn-save" onClick={handleSavePreset} disabled={!presetName.trim()}>
                 Save
               </button>
             </div>
           </div>
-        </div>
+        </button>
       )}
     </DndContext>
   );

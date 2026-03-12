@@ -45,17 +45,17 @@ const typeIcons = {
 // Get display content for an item based on its type
 function getItemDisplay(item, definition) {
   const type = item.type;
-  
+
   // Handle items with custom images
   if (item.image?.base64) {
     return { type: 'image', content: `data:image/png;base64,${item.image.base64}` };
   }
-  
+
   // Handle items with custom titles
   if (item.title && item.title.trim()) {
     return { type: 'text', content: item.title };
   }
-  
+
   // Type-specific displays
   switch (type) {
     case 'escape':
@@ -89,7 +89,7 @@ function getItemDisplay(item, definition) {
     case 'battery':
       return { type: 'battery', icon: '🔋', percentage: '100%' };
     case 'timeButton':
-      return { type: 'time', content: getCurrentTime(item.formatTemplate) };
+      return { type: 'time', content: getCurrentTime(item.formatTemplate, item.timeZone, item.locale) };
     case 'weather':
     case 'yandexWeather':
       return { type: 'weather', icon: '🌤', temp: '72°' };
@@ -131,19 +131,71 @@ function getItemDisplay(item, definition) {
 }
 
 // Get current time formatted
-function getCurrentTime(format) {
-  const now = new Date();
-  const hours = now.getHours().toString().padStart(2, '0');
-  const minutes = now.getMinutes().toString().padStart(2, '0');
-  
-  if (format?.includes('HH:mm')) {
-    return `${hours}:${minutes}`;
+function getCurrentTime(format, timeZone, locale) {
+  if (!format) {
+    format = 'HH:mm';
   }
-  
-  // Default 12-hour format
-  const h12 = now.getHours() % 12 || 12;
-  const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
-  return `${h12}:${minutes} ${ampm}`;
+
+  // Parse custom prefix from format (e.g., "'🌉' h:mm a" -> prefix='🌉', format='h:mm a')
+  let prefix = '';
+  let actualFormat = format;
+
+  const quotedMatch = format.match(/^'([^']*)'[\s]+(.*)/);
+  if (quotedMatch) {
+    prefix = quotedMatch[1];
+    actualFormat = quotedMatch[2];
+  }
+
+  // Get current time in the target timezone
+  let now;
+  if (timeZone && timeZone.trim()) {
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    });
+
+    const parts = formatter.formatToParts(new Date());
+    const obj = {};
+    parts.forEach(p => {
+      if (p.type !== 'literal') obj[p.type] = p.value;
+    });
+
+    now = new Date(`${obj.year}-${obj.month}-${obj.day}T${obj.hour}:${obj.minute}:${obj.second}`);
+  } else {
+    now = new Date();
+  }
+
+  const h24 = now.getHours();
+  const h12 = h24 % 12 || 12;
+  const mm = now.getMinutes().toString().padStart(2, '0');
+  const ss = now.getSeconds().toString().padStart(2, '0');
+  const H = h24.toString();
+  const HH = h24.toString().padStart(2, '0');
+  const h = h12.toString();
+  const hh = h12.toString().padStart(2, '0');
+  const a = h24 >= 12 ? 'pm' : 'am';
+  const A = h24 >= 12 ? 'PM' : 'AM';
+  const aa = h24 >= 12 ? 'pm' : 'am';
+
+  // Build time string from format
+  let timeStr = actualFormat
+    .replace(/HH/g, HH)
+    .replace(/H(?!H)/g, H)
+    .replace(/hh/g, hh)
+    .replace(/h(?!h)/g, h)
+    .replace(/mm/g, mm)
+    .replace(/ss/g, ss)
+    .replace(/aa/g, aa)
+    .replace(/a/g, a)
+    .replace(/A/g, A);
+
+  return prefix ? `${prefix} ${timeStr}` : timeStr;
 }
 
 export default function TouchBarItem({ item, isSelected, onSelect, onContextMenu }) {
@@ -180,10 +232,10 @@ export default function TouchBarItem({ item, isSelected, onSelect, onContextMenu
 
   // Get display info
   const display = getItemDisplay(item, definition);
-  
+
   // Determine if this is a slider type
   const isSlider = display.type === 'slider';
-  
+
   // Determine if this is a group
   const isGroup = item.type === 'group';
 
@@ -216,7 +268,7 @@ export default function TouchBarItem({ item, isSelected, onSelect, onContextMenu
         </div>
       );
     }
-    
+
     // Slider display
     if (display.type === 'slider') {
       return (
@@ -228,7 +280,7 @@ export default function TouchBarItem({ item, isSelected, onSelect, onContextMenu
         </>
       );
     }
-    
+
     // Battery display
     if (display.type === 'battery') {
       return (
@@ -238,12 +290,12 @@ export default function TouchBarItem({ item, isSelected, onSelect, onContextMenu
         </>
       );
     }
-    
+
     // Time display
     if (display.type === 'time') {
       return <span className="time-display">{display.content}</span>;
     }
-    
+
     // Weather display
     if (display.type === 'weather') {
       return (
@@ -253,12 +305,12 @@ export default function TouchBarItem({ item, isSelected, onSelect, onContextMenu
         </>
       );
     }
-    
+
     // Music display
     if (display.type === 'music') {
       return <span className="music-display">{display.content}</span>;
     }
-    
+
     // Group display
     if (display.type === 'group') {
       return (
@@ -270,12 +322,12 @@ export default function TouchBarItem({ item, isSelected, onSelect, onContextMenu
         </>
       );
     }
-    
+
     // Icon display
     if (display.type === 'icon') {
       return <span className="touchbar-icon">{display.content}</span>;
     }
-    
+
     // Default text display
     return <span className="touchbar-item-title">{display.content}</span>;
   };
