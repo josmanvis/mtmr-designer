@@ -125,6 +125,7 @@ export const elementTypes = {
 
   // Native Plugins
   timeButton: {
+    key: 'timeButton',
     type: 'timeButton',
     category: 'plugins',
     label: 'Time Button',
@@ -132,6 +133,20 @@ export const elementTypes = {
     defaultTitle: '',
     defaultProps: {
       formatTemplate: 'HH:mm',
+      locale: 'en_US',
+      timeZone: '',
+    },
+    properties: ['formatTemplate', 'locale', 'timeZone'],
+  },
+  dateButton: {
+    key: 'dateButton',
+    type: 'timeButton',
+    category: 'plugins',
+    label: 'Date Button',
+    icon: '📅',
+    defaultTitle: '',
+    defaultProps: {
+      formatTemplate: 'MMM d',
       locale: 'en_US',
       timeZone: '',
     },
@@ -519,23 +534,34 @@ export const getElementDefinition = (type) => {
   return elementTypes[type] || null;
 };
 
+// Get element definition by key (for palette items with unique keys like dateButton)
+export const getElementDefinitionByKey = (key) => {
+  return Object.values(elementTypes).find((el) => el.key === key) || null;
+};
+
 // Create a new element with default properties
-export const createElement = (type, overrides = {}) => {
-  const definition = elementTypes[type];
+export const createElement = (typeOrKey, overrides = {}) => {
+  // First try to find by key (for palette items like dateButton)
+  let definition = getElementDefinitionByKey(typeOrKey);
+  
+  // If not found by key, try by type
+  if (!definition) {
+    definition = elementTypes[typeOrKey];
+  }
   
   // For unknown types (e.g., from community presets), create a generic element
   // that preserves all original properties
   if (!definition) {
     return {
       id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-      type,
+      type: typeOrKey,
       ...overrides,
     };
   }
 
   return {
     id: `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    type,
+    type: definition.type,
     ...definition.defaultProps,
     ...overrides,
   };

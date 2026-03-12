@@ -60,13 +60,16 @@ function PaletteCategory({ categoryKey, category, isExpanded, onToggle, onItemCl
       </button>
       {isExpanded && (
         <div className="palette-items">
-          {elements.map((element) => (
-            <PaletteItem
-              key={element.type}
-              element={element}
-              onClick={() => onItemClick(element.type)}
-            />
-          ))}
+          {elements.map((element) => {
+            const elementKey = element.key || element.type;
+            return (
+              <PaletteItem
+                key={elementKey}
+                element={element}
+                onClick={() => onItemClick(elementKey)}
+              />
+            );
+          })}
         </div>
       )}
     </div>
@@ -74,11 +77,14 @@ function PaletteCategory({ categoryKey, category, isExpanded, onToggle, onItemCl
 }
 
 function PaletteItem({ element, onClick }) {
+  const elementKey = element.key || element.type;
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({
-    id: `palette-${element.type}`,
+    id: `palette-${elementKey}`,
     data: {
       type: 'palette-item',
       elementType: element.type,
+      elementKey: elementKey,
+      defaultProps: element.defaultProps,
     },
   });
 

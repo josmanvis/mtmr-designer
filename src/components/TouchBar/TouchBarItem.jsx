@@ -21,6 +21,7 @@ const typeIcons = {
   next: '⏭',
   battery: '🔋',
   timeButton: '🕐',
+  dateButton: '📅',
   weather: '🌤',
   yandexWeather: '🌡',
   cpu: '💻',
@@ -171,10 +172,13 @@ function getCurrentTime(format, timeZone, locale) {
     now = new Date();
   }
 
+  // Time components
   const h24 = now.getHours();
   const h12 = h24 % 12 || 12;
-  const mm = now.getMinutes().toString().padStart(2, '0');
-  const ss = now.getSeconds().toString().padStart(2, '0');
+  const minutes = now.getMinutes();
+  const seconds = now.getSeconds();
+  const mm = minutes.toString().padStart(2, '0');
+  const ss = seconds.toString().padStart(2, '0');
   const H = h24.toString();
   const HH = h24.toString().padStart(2, '0');
   const h = h12.toString();
@@ -183,8 +187,46 @@ function getCurrentTime(format, timeZone, locale) {
   const A = h24 >= 12 ? 'PM' : 'AM';
   const aa = h24 >= 12 ? 'pm' : 'am';
 
+  // Date components
+  const day = now.getDate();
+  const month = now.getMonth();
+  const year = now.getFullYear();
+  const dayOfWeek = now.getDay();
+
+  const d = day.toString();
+  const dd = day.toString().padStart(2, '0');
+  const M = (month + 1).toString();
+  const MM = (month + 1).toString().padStart(2, '0');
+  const yy = year.toString().slice(-2);
+  const yyyy = year.toString();
+
+  // Month names
+  const monthNamesShort = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthNamesFull = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  const MMM = monthNamesShort[month];
+  const MMMM = monthNamesFull[month];
+
+  // Day names
+  const dayNamesShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayNamesFull = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const EEE = dayNamesShort[dayOfWeek];
+  const EEEE = dayNamesFull[dayOfWeek];
+
   // Build time string from format
+  // Order matters: longer patterns must be replaced first
   let timeStr = actualFormat
+    // Date tokens (longer patterns first)
+    .replace(/EEEE/g, EEEE)
+    .replace(/EEE/g, EEE)
+    .replace(/MMMM/g, MMMM)
+    .replace(/MMM/g, MMM)
+    .replace(/yyyy/g, yyyy)
+    .replace(/yy/g, yy)
+    .replace(/MM/g, MM)
+    .replace(/M(?!M)/g, M)
+    .replace(/dd/g, dd)
+    .replace(/d(?!d)/g, d)
+    // Time tokens
     .replace(/HH/g, HH)
     .replace(/H(?!H)/g, H)
     .replace(/hh/g, hh)
