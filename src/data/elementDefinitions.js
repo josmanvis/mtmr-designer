@@ -122,6 +122,30 @@ export const elementTypes = {
       width: 36,
     },
   },
+  delete: {
+    type: 'delete',
+    category: 'buttons',
+    label: 'Delete',
+    icon: '⌦',
+    defaultTitle: 'del',
+    defaultProps: {},
+  },
+  sleep: {
+    type: 'sleep',
+    category: 'buttons',
+    label: 'Sleep',
+    icon: '☕️',
+    defaultTitle: '☕️',
+    defaultProps: {},
+  },
+  displaySleep: {
+    type: 'displaySleep',
+    category: 'buttons',
+    label: 'Display Sleep',
+    icon: '💤',
+    defaultTitle: '💤',
+    defaultProps: {},
+  },
 
   // Native Plugins
   timeButton: {
@@ -372,6 +396,38 @@ export const elementTypes = {
         inline: '',
       },
       refreshInterval: 60,
+    },
+    properties: ['source', 'refreshInterval'],
+    supportsActions: true,
+  },
+  memoryButton: {
+    key: 'memoryButton',
+    type: 'shellScriptTitledButton',
+    category: 'custom',
+    label: 'Memory',
+    icon: '🧠',
+    defaultTitle: '',
+    defaultProps: {
+      source: {
+        inline: 'memory_pressure | grep "System-wide memory free percentage" | sed "s/System-wide memory free percentage: //" | sed "s/%//" | xargs -I {} bash -c \'free={} && used=$((100-free)) && echo "🧠 ${used}%"\'',
+      },
+      refreshInterval: 5,
+    },
+    properties: ['source', 'refreshInterval'],
+    supportsActions: true,
+  },
+  activeAppButton: {
+    key: 'activeAppButton',
+    type: 'appleScriptTitledButton',
+    category: 'custom',
+    label: 'Active App',
+    icon: '📱',
+    defaultTitle: '',
+    defaultProps: {
+      source: {
+        inline: 'tell application "System Events" to get name of first process whose frontmost is true',
+      },
+      refreshInterval: 1,
     },
     properties: ['source', 'refreshInterval'],
     supportsActions: true,

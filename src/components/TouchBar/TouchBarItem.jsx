@@ -16,6 +16,9 @@ const typeIcons = {
   volumeDown: '🔉',
   volume: '🔊',
   mute: '🔇',
+  delete: '⌦',
+  sleep: '☕️',
+  displaySleep: '💤',
   previous: '⏮',
   play: '▶️',
   next: '⏭',
@@ -40,6 +43,8 @@ const typeIcons = {
   staticButton: null,
   appleScriptTitledButton: null,
   shellScriptTitledButton: null,
+  memoryButton: '🧠',
+  activeAppButton: '📱',
   swipe: '👆',
 };
 
@@ -81,6 +86,12 @@ function getItemDisplay(item, definition) {
       return { type: 'slider', icon: '🔊' };
     case 'mute':
       return { type: 'icon', content: '🔇' };
+    case 'delete':
+      return { type: 'text', content: 'del' };
+    case 'sleep':
+      return { type: 'icon', content: '☕️' };
+    case 'displaySleep':
+      return { type: 'icon', content: '💤' };
     case 'previous':
       return { type: 'icon', content: '⏮' };
     case 'play':
@@ -242,6 +253,11 @@ function getCurrentTime(format, timeZone, locale) {
 
 export default function TouchBarItem({ item, isSelected, onSelect, onContextMenu }) {
   const definition = getElementDefinition(item.type);
+  
+  // Debug: Log when definition is not found
+  if (!definition) {
+    console.log('TouchBarItem - No definition found for type:', item.type, 'item:', item);
+  }
 
   const {
     attributes,
