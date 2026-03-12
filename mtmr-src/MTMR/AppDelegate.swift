@@ -22,7 +22,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         // 1. Status bar icon FIRST — this must succeed before anything risky
         NSLog("MTMR 2026: Creating Status Bar Item...")
         if let button = statusItem.button {
-            button.image = #imageLiteral(resourceName: "StatusImage")
+            button.image = createMenuBarIcon()
             NSLog("MTMR 2026: Status Item Button Image Set.")
         } else {
             NSLog("MTMR 2026: ERROR — Status Item Button is nil!")
@@ -63,6 +63,93 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func applicationWillTerminate(_: Notification) {}
+
+    /// Generates a template menu bar icon with "MD" text inside a circle.
+    func createMenuBarIcon() -> NSImage {
+        let size = NSSize(width: 18, height: 18)
+        let image = NSImage(size: size, flipped: false) { rect in
+            let inset: CGFloat = 0.5
+            let circleRect = rect.insetBy(dx: inset, dy: inset)
+            let path = NSBezierPath(ovalIn: circleRect)
+            path.lineWidth = 1.2
+            NSColor.black.setStroke()
+            path.stroke()
+
+            let text = "MD" as NSString
+            let font = NSFont.systemFont(ofSize: 9.0, weight: .semibold)
+            let attrs: [NSAttributedString.Key: Any] = [
+                .font: font,
+                .foregroundColor: NSColor.black,
+            ]
+            let textSize = text.size(withAttributes: attrs)
+            let textRect = NSRect(
+                x: (rect.width - textSize.width) / 2,
+                y: (rect.height - textSize.height) / 2,
+                width: textSize.width,
+                height: textSize.height
+            )
+            text.draw(in: textRect, withAttributes: attrs)
+            return true
+        }
+        image.isTemplate = true
+        return image
+    }
+
+    @objc func openDesigner(_: Any?) {
+        DesignerWindowController.shared.showWindow()
+    }
+
+    @objc func showAbout(_: Any?) {
+        let credits = NSMutableAttributedString()
+
+        let titleAttrs: [NSAttributedString.Key: Any] = [
+            .font: NSFont.boldSystemFont(ofSize: 12),
+            .foregroundColor: NSColor.labelColor,
+        ]
+        let bodyAttrs: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 11),
+            .foregroundColor: NSColor.secondaryLabelColor,
+        ]
+        let linkAttrs: [NSAttributedString.Key: Any] = [
+            .font: NSFont.systemFont(ofSize: 11),
+            .foregroundColor: NSColor.linkColor,
+            .cursor: NSCursor.pointingHand,
+        ]
+
+        credits.append(NSAttributedString(string: "MTMR Designer", attributes: titleAttrs))
+        credits.append(NSAttributedString(string: "\nby Jose", attributes: bodyAttrs))
+        credits.append(NSAttributedString(string: " (", attributes: bodyAttrs))
+        credits.append(NSAttributedString(string: "github.com/josmanvis", attributes: [
+            .font: NSFont.systemFont(ofSize: 11),
+            .foregroundColor: NSColor.linkColor,
+            .link: URL(string: "https://github.com/josmanvis")!,
+            .cursor: NSCursor.pointingHand,
+        ]))
+        credits.append(NSAttributedString(string: ")\n\n", attributes: bodyAttrs))
+
+        credits.append(NSAttributedString(string: "Based on MTMR", attributes: titleAttrs))
+        credits.append(NSAttributedString(string: "\nby Anton Palgunov", attributes: bodyAttrs))
+        credits.append(NSAttributedString(string: " (", attributes: bodyAttrs))
+        credits.append(NSAttributedString(string: "github.com/Toxblh", attributes: [
+            .font: NSFont.systemFont(ofSize: 11),
+            .foregroundColor: NSColor.linkColor,
+            .link: URL(string: "https://github.com/Toxblh/MTMR")!,
+            .cursor: NSCursor.pointingHand,
+        ]))
+        credits.append(NSAttributedString(string: ")", attributes: bodyAttrs))
+
+        // Center the text
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .center
+        credits.addAttribute(.paragraphStyle, value: paragraphStyle, range: NSRange(location: 0, length: credits.length))
+
+        let options: [NSApplication.AboutPanelOptionKey: Any] = [
+            .credits: credits,
+            .applicationVersion: "2026.1",
+        ]
+        NSApp.orderFrontStandardAboutPanel(options: options)
+        NSApp.activate(ignoringOtherApps: true)
+    }
 
     @objc func updateIsBlockedApp() {
         if let frontmostAppId = TouchBarController.shared.frontmostApplicationIdentifier {
@@ -156,6 +243,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let settingSeparator = NSMenuItem(title: "Settings", action: nil, keyEquivalent: "")
         settingSeparator.isEnabled = false
 
+        menu.addItem(withTitle: "Open Designer", action: #selector(openDesigner(_:)), keyEquivalent: "D")
+        menu.addItem(NSMenuItem.separator())
         menu.addItem(withTitle: "Preferences", action: #selector(openPreferences(_:)), keyEquivalent: ",")
         menu.addItem(withTitle: "Open preset", action: #selector(openPreset(_:)), keyEquivalent: "O")
         menu.addItem(withTitle: "Check for Updates...", action: #selector(SUUpdater.checkForUpdates(_:)), keyEquivalent: "").target = SUUpdater.shared()
@@ -168,6 +257,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         menu.addItem(startAtLogin)
         menu.addItem(multitouchGestures)
         menu.addItem(NSMenuItem.separator())
+        menu.addItem(withTitle: "About MTMR Designer", action: #selector(showAbout(_:)), keyEquivalent: "")
         menu.addItem(withTitle: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         statusItem.menu = menu
     }
