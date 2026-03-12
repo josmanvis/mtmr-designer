@@ -37,6 +37,8 @@ function AppContent() {
   const [loadingCommunityPreset, setLoadingCommunityPreset] = useState(null);
   const [showSaveModal, setShowSaveModal] = useState(false);
   const [presetName, setPresetName] = useState('');
+  const [saveMode, setSaveMode] = useState('new'); // 'new' or 'override'
+  const [selectedPresetToOverride, setSelectedPresetToOverride] = useState('');
   const [errorToast, setErrorToast] = useState(null);
   const [showJsonSection, setShowJsonSection] = useState(true);
   const presetList = getPresetList();
@@ -119,12 +121,29 @@ function AppContent() {
   };
 
   const handleSavePreset = () => {
-    if (presetName.trim()) {
+    if (saveMode === 'new' && presetName.trim()) {
       saveMyPreset(presetName.trim());
       setPresetName('');
       setShowSaveModal(false);
+      setSaveMode('new');
+    } else if (saveMode === 'override' && selectedPresetToOverride) {
+      overwriteMyPreset(selectedPresetToOverride);
+      setSelectedPresetToOverride('');
+      setShowSaveModal(false);
+      setSaveMode('new');
     }
   };
+
+  const openSaveModal = () => {
+    setSaveMode('new');
+    setPresetName('');
+    setSelectedPresetToOverride('');
+    setShowSaveModal(true);
+    closeMenus();
+  };
+
+  const canSave = (saveMode === 'new' && presetName.trim()) || 
+                  (saveMode === 'override' && selectedPresetToOverride);
 
   const handleDeleteMyPreset = (e, key) => {
     e.stopPropagation();
@@ -545,20 +564,53 @@ function AppContent() {
             role="dialog"
           >
             <h3 className="modal-title">Save as Preset</h3>
-            <input
-              type="text"
-              className="modal-input"
-              placeholder="Enter preset name..."
-              value={presetName}
-              onChange={(e) => setPresetName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSavePreset()}
-            />
+            <div className="modal-tabs">
+              <button
+                type="button"
+                className={`modal-tab ${saveMode === 'new' ? 'active' : ''}`}
+                onClick={() => setSaveMode('new')}
+              >
+                Save as New
+              </button>
+              {myPresets.length > 0 && (
+                <button
+                  type="button"
+                  className={`modal-tab ${saveMode === 'override' ? 'active' : ''}`}
+                  onClick={() => setSaveMode('override')}
+                >
+                  Override Existing
+                </button>
+              )}
+            </div>
+            {saveMode === 'new' ? (
+              <input
+                type="text"
+                className="modal-input"
+                placeholder="Enter preset name..."
+                value={presetName}
+                onChange={(e) => setPresetName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && canSave && handleSavePreset()}
+              />
+            ) : (
+              <div className="modal-preset-list">
+                {myPresets.map((preset) => (
+                  <button
+                    type="button"
+                    key={preset.key}
+                    className={`modal-preset-item ${selectedPresetToOverride === preset.key ? 'selected' : ''}`}
+                    onClick={() => setSelectedPresetToOverride(preset.key)}
+                  >
+                    {preset.name}
+                  </button>
+                ))}
+              </div>
+            )}
             <div className="modal-actions">
               <button type="button" className="modal-btn modal-btn-cancel" onClick={() => setShowSaveModal(false)}>
                 Cancel
               </button>
-              <button type="button" className="modal-btn modal-btn-save" onClick={handleSavePreset} disabled={!presetName.trim()}>
-                Save
+              <button type="button" className="modal-btn modal-btn-save" onClick={handleSavePreset} disabled={!canSave}>
+                {saveMode === 'new' ? 'Save' : 'Override'}
               </button>
             </div>
           </div>

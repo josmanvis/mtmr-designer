@@ -6,13 +6,13 @@ rm -r Release 2>/dev/null
 
 xcodebuild archive \
 	-scheme "$NAME" \
-	-archivePath Release/App.xcarchive | xcpretty -c
+	-archivePath Release/App.xcarchive
 
 xcodebuild \
 	-exportArchive \
 	-archivePath Release/App.xcarchive \
 	-exportOptionsPlist export-options.plist \
-	-exportPath Release | xcpretty -c
+	-exportPath Release
 
 cd Release
 rm -r App.xcarchive

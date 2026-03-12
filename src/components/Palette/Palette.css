@@ -9,17 +9,67 @@
 }
 
 .palette-header {
-  padding: 16px;
+  padding: 12px;
   border-bottom: 1px solid #333;
 }
 
-.palette-header h2 {
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
+.palette-search {
+  display: flex;
+  align-items: center;
+  background: #2a2a2a;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 6px 10px;
+  gap: 8px;
+  transition: border-color 0.15s ease;
+}
+
+.palette-search:focus-within {
+  border-color: #666;
+}
+
+.palette-search-icon {
+  font-size: 12px;
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+
+.palette-search-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
   color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
+  font-size: 13px;
+  min-width: 0;
+}
+
+.palette-search-input::placeholder {
+  color: #666;
+}
+
+.palette-search-clear {
+  background: none;
+  border: none;
+  color: #666;
+  cursor: pointer;
+  padding: 0;
+  font-size: 12px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.15s ease;
+}
+
+.palette-search-clear:hover {
+  opacity: 1;
+  color: #fff;
+}
+
+.palette-no-results {
+  padding: 24px 16px;
+  text-align: center;
+  color: #666;
+  font-size: 13px;
 }
 
 .palette-content {

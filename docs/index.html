@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>MTMR Designer — Visual Touch Bar Preset Designer</title>
   <meta name="description" content="A visual drag-and-drop designer for MTMR Touch Bar presets. Build, preview, and export custom macOS Touch Bar configurations." />
+  <meta property="og:title" content="MTMR Designer — Visual Touch Bar Preset Designer" />
+  <meta property="og:description" content="Drag-and-drop designer for MTMR presets. Build, preview, and export custom macOS Touch Bar configurations." />
+  <meta property="og:image" content="assets/preview.png" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="assets/preview.png" />
   <meta name="theme-color" content="#0a0a0f" />
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
   <style>
@@ -262,6 +268,29 @@
     }
 
     .tb-spacer { flex: 1; }
+
+    /* ── Preview Image ──────────────────────────────────── */
+    .preview-container {
+      max-width: 960px;
+      margin: 64px auto 0;
+      padding: 0 24px;
+    }
+
+    .preview-frame {
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      overflow: hidden;
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,.04),
+        0 24px 80px rgba(0,0,0,.5),
+        0 0 120px rgba(0,122,255,.04);
+    }
+
+    .preview-frame img {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
 
     /* ── Section layout ──────────────────────────────────── */
     section {
@@ -671,6 +700,13 @@
       </div>
       <div class="tb-item">DnD</div>
       <div class="tb-item">Dark</div>
+    </div>
+  </div>
+
+  <!-- App Preview -->
+  <div class="preview-container">
+    <div class="preview-frame">
+      <img src="assets/preview.png" alt="MTMR Designer — visual Touch Bar preset editor" />
     </div>
   </div>
 </header>

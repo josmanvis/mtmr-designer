@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { useApp } from '../../context/AppContext';
 import { elementCategories, getElementsByCategory } from '../../data/elementDefinitions';
@@ -6,6 +6,7 @@ import './Palette.css';
 
 export default function Palette() {
   const { addItem, selectItem } = useApp();
+  const [searchQuery, setSearchQuery] = useState('');
   const [expandedCategories, setExpandedCategories] = useState(
     Object.keys(elementCategories).reduce((acc, key) => {
       acc[key] = true;
@@ -27,29 +28,80 @@ export default function Palette() {
     }
   };
 
+  // Filter elements based on search query
+  const filteredCategories = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return Object.entries(elementCategories).map(([categoryKey, category]) => ({
+        categoryKey,
+        category,
+        elements: getElementsByCategory(categoryKey),
+      }));
+    }
+
+    const query = searchQuery.toLowerCase().trim();
+    return Object.entries(elementCategories)
+      .map(([categoryKey, category]) => {
+        const allElements = getElementsByCategory(categoryKey);
+        const filteredElements = allElements.filter(
+          (el) =>
+            el.label.toLowerCase().includes(query) ||
+            el.type.toLowerCase().includes(query) ||
+            (el.key && el.key.toLowerCase().includes(query))
+        );
+        return { categoryKey, category, elements: filteredElements };
+      })
+      .filter((cat) => cat.elements.length > 0);
+  }, [searchQuery]);
+
+  // Expand all categories when searching
+  const isSearching = searchQuery.trim().length > 0;
+
   return (
     <div className="palette">
       <div className="palette-header">
-        <h2>Elements</h2>
+        <div className="palette-search">
+          <span className="palette-search-icon">🔍</span>
+          <input
+            type="text"
+            className="palette-search-input"
+            placeholder="Search elements..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+          />
+          {searchQuery && (
+            <button
+              type="button"
+              className="palette-search-clear"
+              onClick={() => setSearchQuery('')}
+            >
+              ✕
+            </button>
+          )}
+        </div>
       </div>
       <div className="palette-content">
-        {Object.entries(elementCategories).map(([categoryKey, category]) => (
+        {filteredCategories.map(({ categoryKey, category, elements }) => (
           <PaletteCategory
             key={categoryKey}
             categoryKey={categoryKey}
             category={category}
-            isExpanded={expandedCategories[categoryKey]}
+            elements={elements}
+            isExpanded={isSearching ? true : expandedCategories[categoryKey]}
             onToggle={() => toggleCategory(categoryKey)}
             onItemClick={handleItemClick}
           />
         ))}
+        {filteredCategories.length === 0 && (
+          <div className="palette-no-results">
+            No elements found for "{searchQuery}"
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function PaletteCategory({ categoryKey, category, isExpanded, onToggle, onItemClick }) {
-  const elements = getElementsByCategory(categoryKey);
+function PaletteCategory({ categoryKey, category, elements, isExpanded, onToggle, onItemClick }) {
 
   return (
     <div className={`palette-category ${isExpanded ? 'expanded' : ''}`}>

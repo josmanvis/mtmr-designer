@@ -345,7 +345,7 @@ class TouchBarController: NSObject, NSTouchBarDelegate {
         case let .dock(autoResize: autoResize, filter: regexString):
             if let regexString = regexString {
                 guard let regex = try? NSRegularExpression(pattern: regexString, options: []) else {
-                    barItem = CustomButtonTouchBarItem(identifier: identifier, title: "Bad regex")
+                    barItem = CustomButtonTouchBarItem(identifier: identifier, title: "Bad regex: '\(regexString)'")
                     break
                 }
                 barItem = AppScrubberTouchBarItem(identifier: identifier, autoResize: autoResize, filter: regex)

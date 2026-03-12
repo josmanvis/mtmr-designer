@@ -6,11 +6,10 @@ import { validateJSON } from '../../utils/jsonGenerator';
 import './JsonOutput.css';
 
 export default function JsonOutput() {
-  const { items, exportJSON, importJSON, clearAll, selectItem } = useApp();
+  const { items, exportJSON, importJSON, selectItem } = useApp();
   const [jsonText, setJsonText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [error, setError] = useState(null);
-  const [copySuccess, setCopySuccess] = useState(false);
   const textareaRef = useRef(null);
   const highlighterRef = useRef(null);
 
@@ -137,98 +136,20 @@ export default function JsonOutput() {
     setError(null);
   };
 
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(jsonText);
-      setCopySuccess(true);
-      setTimeout(() => setCopySuccess(false), 2000);
-    } catch (err) {
-      console.error('Failed to copy:', err);
-    }
-  };
-
-  const handleDownload = () => {
-    const blob = new Blob([jsonText], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'items.json';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
-
-  const handleFileImport = (e) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const content = event.target?.result;
-        if (typeof content === 'string') {
-          const validation = validateJSON(content);
-          if (!validation.valid) {
-            setError(validation.errors.join(', '));
-            return;
-          }
-          const result = importJSON(content);
-          if (result.success) {
-            setError(null);
-          } else {
-            setError(result.error);
-          }
-        }
-      };
-      reader.readAsText(file);
-    }
-    // Reset input
-    e.target.value = '';
-  };
-
-  const handleClear = () => {
-    if (window.confirm('Are you sure you want to clear all items?')) {
-      clearAll();
-    }
-  };
-
   return (
     <div className="json-output">
-      <div className="json-header">
-        <h2>Generated JSON</h2>
-        <div className="json-actions">
-          {isEditing ? (
-            <>
-              <button onClick={handleApply} className="json-button primary">
-                Apply
-              </button>
-              <button onClick={handleCancel} className="json-button">
-                Cancel
-              </button>
-            </>
-          ) : (
-            <>
-              <button onClick={handleCopy} className="json-button">
-                {copySuccess ? '✓ Copied!' : 'Copy'}
-              </button>
-              <button onClick={handleDownload} className="json-button">
-                Download
-              </button>
-              <label className="json-button import-button">
-                Import
-                <input
-                  type="file"
-                  accept=".json"
-                  onChange={handleFileImport}
-                  style={{ display: 'none' }}
-                />
-              </label>
-              <button onClick={handleClear} className="json-button danger">
-                Clear
-              </button>
-            </>
-          )}
+      {isEditing && (
+        <div className="json-header">
+          <div className="json-actions">
+            <button onClick={handleApply} className="json-button primary">
+              Apply
+            </button>
+            <button onClick={handleCancel} className="json-button">
+              Cancel
+            </button>
+          </div>
         </div>
-      </div>
+      )}
 
       {error && (
         <div className="json-error">
@@ -281,8 +202,8 @@ export default function JsonOutput() {
         <span className="item-count">{items.length} items</span>
         <span className="json-hint">
           {isEditing
-            ? 'Edit the JSON above and click Apply to update'
-            : 'Click in the JSON to select an element • JSON updates automatically'}
+            ? 'Edit the JSON and click Apply to update'
+            : 'Click to select an element'}
         </span>
       </div>
     </div>
