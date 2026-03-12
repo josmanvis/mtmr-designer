@@ -531,7 +531,12 @@ export const getElementsByCategory = (category) => {
 
 // Get element definition by type
 export const getElementDefinition = (type) => {
-  return elementTypes[type] || null;
+  // First try direct lookup by key (e.g., elementTypes['cpu'])
+  if (elementTypes[type]) {
+    return elementTypes[type];
+  }
+  // If not found, search by type property (for items loaded from MTMR)
+  return Object.values(elementTypes).find((el) => el.type === type) || null;
 };
 
 // Get element definition by key (for palette items with unique keys like dateButton)
