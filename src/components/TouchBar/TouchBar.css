@@ -42,9 +42,34 @@
 .touchbar-items {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0;
   padding: 4px 6px;
   min-height: 36px;
+  flex: 1;
+}
+
+/* Alignment sections */
+.touchbar-section {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.touchbar-section-left {
+  flex: 0 0 auto;
+  order: 1;
+}
+
+.touchbar-section-center {
+  flex: 1;
+  order: 2;
+  justify-content: center;
+}
+
+.touchbar-section-right {
+  flex: 0 0 auto;
+  order: 3;
+  margin-left: auto;
 }
 
 /* Empty State */
@@ -117,14 +142,7 @@
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* Alignment */
-.touchbar-item.align-left {
-  margin-right: auto;
-}
-
-.touchbar-item.align-right {
-  margin-left: auto;
-}
+/* Alignment - handled by sections now */
 
 /* Item Title */
 .touchbar-item-title {
