@@ -30,7 +30,7 @@ const typeIcons = {
   cpu: '💻',
   currency: '💱',
   music: '🎵',
-  dock: '📱',
+  dock: '🖥',
   nightShift: '🌙',
   dnd: '🔕',
   darkMode: '🌓',
@@ -112,7 +112,7 @@ function getItemDisplay(item, definition) {
     case 'music':
       return { type: 'music', content: '♪ Now Playing' };
     case 'dock':
-      return { type: 'icon', content: '📱' };
+      return { type: 'dock' };
     case 'nightShift':
       return { type: 'icon', content: '🌙' };
     case 'dnd':
@@ -378,6 +378,19 @@ export default function TouchBarItem({ item, isSelected, onSelect, onContextMenu
             <span className="group-count">{display.count}</span>
           )}
         </>
+      );
+    }
+
+    // Dock display
+    if (display.type === 'dock') {
+      return (
+        <div className="dock-preview">
+          <span className="dock-app">🔍</span>
+          <span className="dock-app">📧</span>
+          <span className="dock-app">🌐</span>
+          <span className="dock-app active">📝</span>
+          <span className="dock-app">📁</span>
+        </div>
       );
     }
 

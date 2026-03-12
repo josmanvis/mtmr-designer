@@ -7,7 +7,8 @@
     "dev": "nodemon server/server.js",
     "build": "vite build",
     "start": "node server/server.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "docs": "vite --config vite.docs.config.js"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
