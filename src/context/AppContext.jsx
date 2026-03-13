@@ -11,6 +11,7 @@ const initialState = {
   myPresets: [], // User's saved presets
   isDirty: false, // Track unsaved changes since last load/save
   mtmrItems: null, // Track what's currently in MTMR
+  autoLoad: JSON.parse(localStorage.getItem('mtmr-auto-load') ?? 'true'), // Auto-load items.json on startup
   history: {
     past: [],
     future: [],
@@ -44,6 +45,7 @@ const ActionTypes = {
   LOAD_FROM_MTM: 'LOAD_FROM_MTM',
   SAVE_TO_MTM: 'SAVE_TO_MTM',
   MARK_CLEAN: 'MARK_CLEAN',
+  TOGGLE_AUTO_LOAD: 'TOGGLE_AUTO_LOAD',
 };
 
 // Reducer
@@ -328,6 +330,15 @@ function appReducer(state, action) {
         isDirty: false,
       };
 
+    case ActionTypes.TOGGLE_AUTO_LOAD: {
+      const newAutoLoad = !state.autoLoad;
+      localStorage.setItem('mtmr-auto-load', JSON.stringify(newAutoLoad));
+      return {
+        ...state,
+        autoLoad: newAutoLoad,
+      };
+    }
+
     default:
       return state;
   }
@@ -340,33 +351,60 @@ const AppContext = createContext(null);
 export function AppProvider({ children }) {
   const [state, dispatch] = useReducer(appReducer, initialState);
 
-  // Load from localStorage on mount
+  // Load items on mount: from MTMR (if autoLoad) or localStorage
   useEffect(() => {
-    // Load saved items
-    const saved = localStorage.getItem('mtmr-designer-items');
-    if (saved) {
-      try {
-        const { items } = parseJSON(saved);
-        if (items.length > 0) {
-          dispatch({ type: ActionTypes.LOAD_ITEMS, payload: items });
+    const loadInitialItems = async () => {
+      if (state.autoLoad) {
+        // Try loading from MTMR items.json
+        try {
+          const serverRunning = await isServerRunning();
+          if (serverRunning) {
+            const result = await loadFromMTMRFile();
+            if (result.success && result.data && result.data.length > 0) {
+              const items = processMTMRItems(result.data);
+              dispatch({ type: ActionTypes.LOAD_FROM_MTM, payload: items });
+              // Skip localStorage fallback
+              loadMyPresets();
+              return;
+            }
+          }
+        } catch (e) {
+          console.error('Failed to auto-load from MTMR:', e);
         }
-      } catch (e) {
-        console.error('Failed to load saved items:', e);
       }
-    }
 
-    // Load my presets
-    const savedPresets = localStorage.getItem('mtmr-my-presets');
-    if (savedPresets) {
-      try {
-        const presets = JSON.parse(savedPresets);
-        if (Array.isArray(presets) && presets.length > 0) {
-          dispatch({ type: ActionTypes.LOAD_MY_PRESETS, payload: presets });
+      // Fallback: load from localStorage
+      const saved = localStorage.getItem('mtmr-designer-items');
+      if (saved) {
+        try {
+          const { items } = parseJSON(saved);
+          if (items.length > 0) {
+            dispatch({ type: ActionTypes.LOAD_ITEMS, payload: items });
+          }
+        } catch (e) {
+          console.error('Failed to load saved items:', e);
         }
-      } catch (e) {
-        console.error('Failed to load saved presets:', e);
       }
-    }
+
+      loadMyPresets();
+    };
+
+    const loadMyPresets = () => {
+      const savedPresets = localStorage.getItem('mtmr-my-presets');
+      if (savedPresets) {
+        try {
+          const presets = JSON.parse(savedPresets);
+          if (Array.isArray(presets) && presets.length > 0) {
+            dispatch({ type: ActionTypes.LOAD_MY_PRESETS, payload: presets });
+          }
+        } catch (e) {
+          console.error('Failed to load saved presets:', e);
+        }
+      }
+    };
+
+    loadInitialItems();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Save to localStorage when items change
@@ -488,6 +526,10 @@ export function AppProvider({ children }) {
     dispatch({ type: ActionTypes.DELETE_MY_PRESET, payload: key });
   }, []);
 
+  const toggleAutoLoad = useCallback(() => {
+    dispatch({ type: ActionTypes.TOGGLE_AUTO_LOAD });
+  }, []);
+
   const loadFromMTMR = useCallback(async () => {
     try {
       // Check if server is running
@@ -592,6 +634,7 @@ export function AppProvider({ children }) {
     myPresets: state.myPresets,
     isDirty: state.isDirty,
     shouldEnableSave,
+    autoLoad: state.autoLoad,
 
     // Actions
     addItem,
@@ -614,6 +657,7 @@ export function AppProvider({ children }) {
     deleteMyPreset,
     loadFromMTMR,
     saveToMTMR,
+    toggleAutoLoad,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
