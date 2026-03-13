@@ -33,6 +33,9 @@ jobs:
           cd Release
           create-dmg MTMR.app
 
+      - name: List Release Directory
+        run: ls -l Release/
+
       - name: GitHub Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
