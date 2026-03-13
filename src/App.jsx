@@ -538,7 +538,8 @@ function AppContent() {
         </main>
 
         <footer className="app-footer">
-          <span>Drag elements to the touch bar • Click to select • Right-click for options</span>
+          <span className="app-footer-hint">Drag elements to the touch bar • Click to select • Right-click for options</span>
+          <span className="app-footer-credits">MTMR Designer — Based on <a href="https://github.com/Toxblh/MTMR" target="_blank" rel="noopener noreferrer">MTMR</a> by Anton Palgunov</span>
         </footer>
       </div>
 
