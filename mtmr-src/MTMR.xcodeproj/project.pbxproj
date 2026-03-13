@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		AA0000052026031200000004 /* WebApp in Resources */ = {isa = PBXBuildFile; fileRef = AA0000062026031200000005 /* WebApp */; };
 		36300E83209F040900B31C71 /* SupportHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0008E542080286C003AD4DD /* SupportHelpers.swift */; };
 		36300E8F20A2CF3400B31C71 /* AppleScriptDefinitionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36300E8E20A2CF3400B31C71 /* AppleScriptDefinitionTests.swift */; };
 		36300E9120A2D2B200B31C71 /* BackgroundColorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36300E9020A2D2B200B31C71 /* BackgroundColorTests.swift */; };
@@ -173,6 +174,7 @@
 		BAF5AB5624317B4300B04904 /* BasicView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicView.swift; sourceTree = "<group>"; };
 		BAF5AB5824317CAF00B04904 /* SwipeItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeItem.swift; sourceTree = "<group>"; };
 		F29F6A2424BC7148004FF8E4 /* UpNextScrubberTouchBarItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpNextScrubberTouchBarItem.swift; sourceTree = "<group>"; };
+		AA0000062026031200000005 /* WebApp */ = {isa = PBXFileReference; lastKnownFileType = folder; path = WebApp; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -234,6 +236,7 @@
 		B082B251205C7D8000BC04DC /* MTMR */ = {
 			isa = PBXGroup;
 			children = (
+				AA0000062026031200000005 /* WebApp */,
 				B0B88A07208CD12000A2C160 /* Widgets */,
 				B0B1743B207D6ED40004B740 /* CBridge */,
 				B0B17426207D6AFE0004B740 /* AppleScripts */,
@@ -348,12 +351,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = B082B275205C7D8000BC04DC /* Build configuration list for PBXNativeTarget "MTMR" */;
 			buildPhases = (
+				AA0000042026031200000003 /* Bundle Web App */,
 				B082B24B205C7D8000BC04DC /* Sources */,
 				B082B24C205C7D8000BC04DC /* Frameworks */,
 				B082B24D205C7D8000BC04DC /* Resources */,
 				B00D181E2152F507000806F4 /* CopyFiles */,
 				B0679BBF215AE085000FC6B4 /* ShellScript */,
-				AA0000042026031200000003 /* Bundle Web App */,
 			);
 			buildRules = (
 			);
@@ -448,6 +451,7 @@
 				36C2ECE0207CB1B0003CDA33 /* defaultPreset.json in Resources */,
 				B0B17432207D6B590004B740 /* Weather.scpt in Resources */,
 				B0B17431207D6B590004B740 /* PlaySmart.scpt in Resources */,
+				AA0000052026031200000004 /* WebApp in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -494,7 +498,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Copy bundled web app into app bundle if it exists\nWEBAPP_SRC=\"${SRCROOT}/MTMR/WebApp\"\nWEBAPP_DST=\"${BUILT_PRODUCTS_DIR}/${PRODUCT_NAME}.app/Contents/Resources/WebApp\"\n\nif [ -d \"$WEBAPP_SRC\" ]; then\n    mkdir -p \"$WEBAPP_DST\"\n    cp -r \"$WEBAPP_SRC/\"* \"$WEBAPP_DST/\"\n    echo \"Copied bundled web app from $WEBAPP_SRC\"\nelse\n    echo \"No bundled web app found at $WEBAPP_SRC (development mode)\"\nfi\n";
+			shellScript = "# Build the MTMR Designer web app BEFORE Xcode copies resources\n# This runs early in the build phase so the WebApp folder can be included\n\nDESIGNER_ROOT=\"${SRCROOT}/..\"\nWEBAPP_SRC=\"${SRCROOT}/MTMR/WebApp\"\n\n# Always try to build if the web app source exists\nif [ -d \"${DESIGNER_ROOT}/src\" ]; then\n    echo \"Building MTMR Designer web app...\"\n    cd \"$DESIGNER_ROOT\"\n    \n    # Check if node_modules exists\n    if [ ! -d \"node_modules\" ]; then\n        echo \"Installing dependencies...\"\n        npm install --silent 2>/dev/null\n    fi\n    \n    # Build with Vite\n    echo \"Running Vite build...\"\n    npm run build --silent 2>/dev/null\n    \n    # Copy to WebApp folder (this is in the source tree, not the build product)\n    echo \"Copying to WebApp source folder...\"\n    rm -rf \"$WEBAPP_SRC\"\n    mkdir -p \"$WEBAPP_SRC\"\n    cp -r \"${DESIGNER_ROOT}/dist/\"* \"$WEBAPP_SRC/\" 2>/dev/null\n    \n    echo \"Web app built successfully at: $WEBAPP_SRC\"\nelse\n    echo \"No web app source found at ${DESIGNER_ROOT}/src\"\nfi\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

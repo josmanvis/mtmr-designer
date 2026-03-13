@@ -53,6 +53,8 @@
 
 ## Quick Start
 
+### Web App (Browser)
+
 ```bash
 # Clone the repository
 git clone https://github.com/josetwentyfour/mtmr-designer.git
@@ -67,6 +69,24 @@ pnpm run dev
 ```
 
 Open **http://localhost:3001** in your browser.
+
+### Native App (MTMR 2026)
+
+The MTMR 2026 native macOS app automatically opens the Designer on launch:
+
+```bash
+# Build the web app for bundling
+./build-webapp.sh
+
+# Open in Xcode and build, or use existing build
+open mtmr-src/MTMR.xcodeproj
+```
+
+The app works in two modes:
+- **Bundled mode**: Uses built files from `mtmr-src/MTMR/WebApp/` (no server needed)
+- **Development mode**: Falls back to `localhost:3001` if no bundled files exist
+
+See [MTMR_DESIGNER_FIX.md](MTMR_DESIGNER_FIX.md) for details.
 
 ## Architecture
 

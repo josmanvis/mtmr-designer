@@ -29,6 +29,12 @@ The root uses **pnpm**; the server uses **npm** (separate `package.json` and `no
 
 Build via Xcode: open `mtmr-src/MTMR.xcodeproj`, select the `MTMR` scheme, and build. Release builds use `mtmr-src/build.sh` (requires `xcpretty` and `create-dmg`). Bundle ID: `com.mtmr.designer.MTMR`. Not part of the Node.js build pipeline.
 
+**Important**: The app automatically opens the Designer window on launch. It works in two modes:
+- **Bundled mode**: Serves files from `mtmr-src/MTMR/WebApp/` using a custom `mtmr-app://` URL scheme. No Express server needed.
+- **Development mode**: Falls back to `http://localhost:3001` if no bundled files exist.
+
+Before building in Xcode, run `./build-webapp.sh` to bundle the web app. The app uses `AppSchemeHandler.swift` to serve files and handle API calls natively in bundled mode.
+
 ## Architecture
 
 This is a React + Express web app that serves as a visual designer for [MTMR](https://github.com/Toxblh/MTMR) Touch Bar presets.
