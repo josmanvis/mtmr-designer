@@ -13,8 +13,8 @@
 </p>
 
 <p align="center">
-  <a href="https://josetwentyfour.github.io/mtmr-designer">Documentation</a> &middot;
-  <a href="#quick-start">Quick Start</a> &middot;
+  <a href="https://github.com/josmanvis/mtmr-designer/releases/latest">Download</a> &middot;
+  <a href="#installation">Installation</a> &middot;
   <a href="#features">Features</a> &middot;
   <a href="#architecture">Architecture</a>
 </p>
@@ -51,13 +51,26 @@
 
 **Undo & Redo** — Full history support with keyboard shortcuts. Your work auto-saves to localStorage.
 
-## Quick Start
+## Installation
 
-### Web App (Browser)
+### Download (Recommended)
+
+Download the latest DMG from [GitHub Releases](https://github.com/josmanvis/mtmr-designer/releases/latest).
+
+1. Download `MTMR-2026-<version>.dmg` from the latest release
+2. Open the DMG and drag **MTMR 2026** to your Applications folder
+3. Launch MTMR 2026 from Applications or Spotlight
+
+The app is self-contained — no server, no dependencies, no setup required. A new release is published automatically with every update merged into `main`.
+
+> **Note:** The app is currently unsigned. On first launch, right-click the app and select "Open", then click "Open" in the dialog to bypass Gatekeeper.
+
+### Build from Source
+
+#### Web App (Browser)
 
 ```bash
-# Clone the repository
-git clone https://github.com/josetwentyfour/mtmr-designer.git
+git clone https://github.com/josmanvis/mtmr-designer.git
 cd mtmr-designer
 
 # Install dependencies
@@ -70,23 +83,23 @@ pnpm run dev
 
 Open **http://localhost:3001** in your browser.
 
-### Native App (MTMR 2026)
+#### Native App (Xcode)
 
-The MTMR 2026 native macOS app automatically opens the Designer on launch:
+To build the native macOS app yourself:
 
 ```bash
 # Build the web app for bundling
 ./build-webapp.sh
 
-# Open in Xcode and build, or use existing build
+# Open in Xcode and build
 open mtmr-src/MTMR.xcodeproj
 ```
+
+Select the **MTMR** scheme and press **Cmd+R** to build and run.
 
 The app works in two modes:
 - **Bundled mode**: Uses built files from `mtmr-src/MTMR/WebApp/` (no server needed)
 - **Development mode**: Falls back to `localhost:3001` if no bundled files exist
-
-See [MTMR_DESIGNER_FIX.md](MTMR_DESIGNER_FIX.md) for details.
 
 ## Architecture
 

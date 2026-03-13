@@ -1,6 +1,17 @@
 # Quick Start: MTMR Designer Native App
 
-## First Time Setup
+## Option 1: Download Pre-Built App (Easiest)
+
+1. Go to [GitHub Releases](https://github.com/josmanvis/mtmr-designer/releases/latest)
+2. Download `MTMR-2026-<version>.dmg`
+3. Open the DMG and drag **MTMR 2026** to Applications
+4. Right-click the app and select "Open" (required on first launch since the app is unsigned)
+
+A new DMG is published automatically with every update merged into `main`.
+
+## Option 2: Build from Source
+
+### First Time Setup
 
 1. **Build the web app** (one-time, or when you update the code):
    ```bash
