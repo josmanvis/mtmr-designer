@@ -465,16 +465,33 @@
 
 /* Footer */
 .app-footer {
-  padding: 8px 20px;
+  padding: 6px 20px;
   background: #1a1a1a;
   border-top: 1px solid #333;
-  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   flex-shrink: 0;
 }
 
-.app-footer span {
+.app-footer-hint {
   font-size: 11px;
   color: #666;
+}
+
+.app-footer-credits {
+  font-size: 10px;
+  color: #555;
+}
+
+.app-footer-credits a {
+  color: #888;
+  text-decoration: none;
+}
+
+.app-footer-credits a:hover {
+  color: #aaa;
+  text-decoration: underline;
 }
 
 /* Responsive */
