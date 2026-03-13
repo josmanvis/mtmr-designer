@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   DndContext,
   DragOverlay,
@@ -42,6 +42,21 @@ function AppContent() {
   const [errorToast, setErrorToast] = useState(null);
   const [showJsonSection, setShowJsonSection] = useState(true);
   const presetList = getPresetList();
+
+  // Keyboard shortcut for Save to MTMR (Cmd+S / Ctrl+S)
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+        e.preventDefault();
+        if (shouldEnableSave) {
+          handleUpdateMTMR();
+        }
+      }
+    };
+    
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [shouldEnableSave]);
 
   const toggleMenu = (menu) => {
     setOpenMenu((prev) => (prev === menu ? null : menu));
