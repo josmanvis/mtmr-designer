@@ -1,0 +1,71 @@
+[
+	
+	
+	
+	
+	
+	
+	{
+		"type": "weather",
+		"refreshInterval": 600, 
+		"units": "imperial", 
+		"icon_type": "images", 
+		"api_key": "YOUR KEY HERE", 
+		"width": 60,
+		"bordered": false,
+		"align": "left"
+	},
+	{
+		"type": "brightnessDown",
+		"width": 60,
+		"bordered": true,
+		"align": "left"
+	},
+	{
+		"type": "brightnessUp",
+		"width": 60,
+		"bordered": true,
+		"align": "left"
+	},
+	{ 
+		"type": "shellScriptTitledButton",
+		"width": 588,
+		"refreshInterval": 9, 
+		"source": {
+			
+			"filePath": "~/Library/Application Support/MTMR/randomQuotes.sh"
+		},
+		"align": "left",
+		"bordered": false
+	},
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	{
+		"type": "volumeDown",
+		"bordered": true,
+		"align": "right",
+		"width": 60
+	},
+	{
+		"type": "volumeUp",
+		"bordered": true,
+		"align": "right",
+		"width": 60
+	},
+	{
+		"type": "sleep",
+		"width": 60,
+		"align": "right",
+		"bordered": true
+	}
+]
