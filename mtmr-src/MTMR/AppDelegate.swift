@@ -70,6 +70,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_: Notification) {}
 
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        return false
+    }
+
     /// Generates a template menu bar icon with "MD" text inside a circle.
     func createMenuBarIcon() -> NSImage {
         let size = NSSize(width: 18, height: 18)

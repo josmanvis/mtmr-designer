@@ -86,7 +86,6 @@ mtmr-designer/
 │       ├── jsonGenerator.js      # JSON serialization / parsing
 │       └── mtmrFileSystem.js     # Server API wrappers
 ├── server/server.js              # Express + Vite backend
-├── electron/                     # Optional Electron wrapper
 ├── mtmr-src/                     # MTMR 2026 Swift app (Xcode)
 └── public/presets/                # 26 community preset JSON files
 ```
@@ -107,10 +106,6 @@ mtmr-designer/
 | `/api/health` | GET | Server health check |
 
 Uses `comment-json` to parse MTMR configs that contain JavaScript-style comments.
-
-### Electron (Optional)
-
-Embeds the React app and renders items to the actual macOS Touch Bar via Electron's `TouchBar` API. Not wired into the main scripts.
 
 ### MTMR 2026 (Optional)
 
@@ -165,7 +160,6 @@ pnpm run lint     # ESLint
 | Syntax Highlighting | react-syntax-highlighter |
 | Server | Express + vite-express |
 | JSON | comment-json |
-| Desktop | Electron (optional) |
 | Native App | Swift / Xcode (optional) |
 
 ## Credits
