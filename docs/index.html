@@ -666,7 +666,7 @@
     <li><a href="#presets">Presets</a></li>
     <li><a href="#get-started">Get Started</a></li>
   </ul>
-  <a href="https://github.com/josetwentyfour/mtmr-designer" class="nav-cta">GitHub</a>
+  <a href="https://github.com/josmanvis/mtmr-designer/releases/latest" class="nav-cta">Download</a>
 </nav>
 
 <!-- ── Hero ─────────────────────────────────────────────── -->
@@ -680,11 +680,8 @@
     Drag-and-drop designer for MTMR presets. Build, preview, and export custom macOS Touch Bar configurations without writing JSON by hand.
   </p>
   <div class="hero-actions">
-    <a href="#get-started" class="btn btn-primary">Get Started</a>
-    <a href="https://github.com/josetwentyfour/mtmr-designer" class="btn btn-secondary">
-      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.01 8.01 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
-      View on GitHub
-    </a>
+    <a href="https://github.com/josmanvis/mtmr-designer/releases/latest" class="btn btn-primary">Download DMG</a>
+    <a href="#get-started" class="btn btn-secondary">Build from Source</a>
   </div>
 
   <!-- Touch Bar Demo -->
@@ -998,15 +995,30 @@
 <section id="get-started">
   <div class="section-inner">
     <div class="section-label">Get Started</div>
-    <h2 class="section-title">Up and running in 60 seconds</h2>
+    <h2 class="section-title">Up and running in under a minute</h2>
     <p class="section-desc">
-      Clone the repo, install dependencies, and start designing.
+      Download the pre-built app or build from source.
     </p>
 
+    <div class="install-block" style="margin-bottom: 40px;">
+      <h3 style="color: #fff; font-size: 18px; margin-bottom: 12px;">Download (Recommended)</h3>
+      <p style="color: var(--text-dim); font-size: 14px; line-height: 1.7; margin-bottom: 16px;">
+        Grab the latest DMG from
+        <a href="https://github.com/josmanvis/mtmr-designer/releases/latest">GitHub Releases</a>.
+        Open it, drag <strong style="color: #fff;">MTMR 2026</strong> to Applications, and launch.
+        No server, no dependencies, no setup.
+      </p>
+      <p style="color: var(--text-muted); font-size: 12px; line-height: 1.6;">
+        The app is currently unsigned. On first launch, right-click the app and select "Open", then click "Open" in the dialog to bypass Gatekeeper.
+        A new release is published automatically with every update merged into main.
+      </p>
+    </div>
+
     <div class="install-block">
+      <h3 style="color: #fff; font-size: 18px; margin-bottom: 12px;">Build from Source</h3>
       <div class="code-block">
         <span class="comment"># Clone the repository</span><br />
-        <span class="cmd">git clone</span> <span class="arg">https://github.com/josetwentyfour/mtmr-designer.git</span><br />
+        <span class="cmd">git clone</span> <span class="arg">https://github.com/josmanvis/mtmr-designer.git</span><br />
         <span class="cmd">cd</span> mtmr-designer<br />
         <br />
         <span class="comment"># Install dependencies</span><br />
@@ -1018,6 +1030,10 @@
         <br />
         <span class="comment"># Open http://localhost:3001</span>
       </div>
+      <p style="color: var(--text-dim); font-size: 13px; margin-top: 16px; line-height: 1.6;">
+        To build the native macOS app, run <code style="background: var(--bg-code); padding: 2px 6px; border-radius: 4px; font-size: 12px;">./build-webapp.sh</code>
+        then open <code style="background: var(--bg-code); padding: 2px 6px; border-radius: 4px; font-size: 12px;">mtmr-src/MTMR.xcodeproj</code> in Xcode and build.
+      </p>
     </div>
   </div>
 </section>
@@ -1026,12 +1042,14 @@
 <footer>
   <div class="footer-inner">
     <div class="footer-links">
-      <a href="https://github.com/josetwentyfour/mtmr-designer">GitHub</a>
+      <a href="https://github.com/josmanvis/mtmr-designer/releases/latest">Download</a>
+      <a href="https://github.com/josmanvis/mtmr-designer">GitHub</a>
       <a href="https://github.com/Toxblh/MTMR">MTMR</a>
       <a href="https://github.com/Toxblh/MTMR-presets">Community Presets</a>
-      <a href="https://github.com/josetwentyfour/mtmr-designer/issues">Issues</a>
+      <a href="https://github.com/josmanvis/mtmr-designer/issues">Issues</a>
     </div>
     <p class="footer-note">
+      <strong style="color: var(--text-dim);">MTMR Designer</strong> &middot;
       Built by <a href="https://github.com/josmanvis">jose</a> &middot;
       Based on <a href="https://github.com/Toxblh/MTMR">MTMR</a> by <a href="https://github.com/Toxblh">Anton Palgunov</a> &middot;
       MIT License
