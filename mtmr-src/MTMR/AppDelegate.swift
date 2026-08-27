@@ -273,16 +273,37 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     func reloadOnDefaultConfigChanged() {
+        if !FileManager.default.fileExists(atPath: standardConfigPath) {
+            try? FileManager.default.createDirectory(atPath: appSupportDirectory, withIntermediateDirectories: true, attributes: nil)
+            if let defaultPreset = Bundle.main.path(forResource: "defaultPreset", ofType: "json") {
+                try? FileManager.default.copyItem(atPath: defaultPreset, toPath: standardConfigPath)
+            } else if !FileManager.default.fileExists(atPath: standardConfigPath) {
+                try? "[]".write(toFile: standardConfigPath, atomically: true, encoding: .utf8)
+            }
+        }
+
         let file = NSURL.fileURL(withPath: standardConfigPath)
 
         let fd = open(file.path, O_EVTONLY)
+        guard fd >= 0 else {
+            NSLog("MTMR 2026: Failed to open file descriptor for config path %@", file.path)
+            return
+        }
 
-        fileSystemSource = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd, eventMask: .write, queue: DispatchQueue(label: "DefaultConfigChanged"))
+        fileSystemSource?.cancel()
 
-        fileSystemSource?.setEventHandler(handler: {
+        fileSystemSource = DispatchSource.makeFileSystemObjectSource(fileDescriptor: fd, eventMask: [.write, .delete, .rename], queue: DispatchQueue(label: "DefaultConfigChanged"))
+
+        fileSystemSource?.setEventHandler(handler: { [weak self] in
             print("Config changed, reloading...")
             DispatchQueue.main.async {
                 TouchBarController.shared.reloadPreset(path: file.path)
+            }
+            if let data = self?.fileSystemSource?.data, data.contains(.delete) || data.contains(.rename) {
+                self?.fileSystemSource?.cancel()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self?.reloadOnDefaultConfigChanged()
+                }
             }
         })
 
