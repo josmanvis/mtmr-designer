@@ -222,10 +222,13 @@ class TouchBarController: NSObject, NSTouchBarDelegate {
 
     func reloadStandardConfig() {
         let presetPath = standardConfigPath
-        if !FileManager.default.fileExists(atPath: presetPath),
-            let defaultPreset = Bundle.main.path(forResource: "defaultPreset", ofType: "json") {
+        if !FileManager.default.fileExists(atPath: presetPath) {
             try? FileManager.default.createDirectory(atPath: appSupportDirectory, withIntermediateDirectories: true, attributes: nil)
-            try? FileManager.default.copyItem(atPath: defaultPreset, toPath: presetPath)
+            if let defaultPreset = Bundle.main.path(forResource: "defaultPreset", ofType: "json") {
+                try? FileManager.default.copyItem(atPath: defaultPreset, toPath: presetPath)
+            } else if !FileManager.default.fileExists(atPath: presetPath) {
+                try? "[]".write(toFile: presetPath, atomically: true, encoding: .utf8)
+            }
         }
 
         reloadPreset(path: presetPath)
