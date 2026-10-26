@@ -28,7 +28,7 @@
     "bordered": false,
     "refreshInterval": 300,
     "icon_type": "images",
-    "api_key": "REDACTED",
+    "api_key": "",
     "tempUnit": "C"
   },
   {
