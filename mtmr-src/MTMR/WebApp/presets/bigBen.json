@@ -64,7 +64,7 @@
   {
     "type": "weather",
     "align": "right",
-    "api_key": "REDACTED",
+    "api_key": "",
     "bordered": false
   },
   {

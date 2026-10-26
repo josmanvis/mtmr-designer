@@ -98,7 +98,7 @@
     "type": "weather",
     "align": "right",
     "icon_type": "images",
-    "api_key": "REDACTED",
+    "api_key": "",
     "bordered": false,
     "longAction": "appleScript",
     "longActionAppleScript": {
