@@ -123,7 +123,7 @@
   "workTime": 1800, // set time work in seconds. Default 1500 (25 min)
   "restTime": 600, // set time rest in seconds. Default 300 (5 min)
   },
-  { "type": "weather", "refreshInterval": 60, "units": "metric", "align": "right", "bordered": false, "icon_type": "images", "api_key": "84645702688e83a35e2549ca77f73369"},
+  { "type": "weather", "refreshInterval": 60, "units": "metric", "align": "right", "bordered": false, "icon_type": "images", "api_key": ""},
   { "type": "battery", "align": "right", "bordered": false },
   { "type": "timeButton", "align": "right", "formatTemplate": "E MMM d h:mm a", "bordered": false  }
 ]

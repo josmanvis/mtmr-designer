@@ -34,7 +34,7 @@
     "type": "weather",
     "align": "right",
     "icon_type": "images",
-    "api_key": "ca93a0bb8cdb428552660d83249e4bc9",
+    "api_key": "",
     "bordered": true,
     "refreshInterval": 1800
   },
